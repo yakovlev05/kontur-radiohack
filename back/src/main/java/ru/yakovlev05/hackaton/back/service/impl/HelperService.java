@@ -43,7 +43,7 @@ public class HelperService {
             throw new RuntimeException(e);
         } catch (IOException e) {
             log.error("Ошибка при отправке ответа ws");
-            throw new RuntimeException(e);
+//            throw new RuntimeException(e);
         }
     }
 

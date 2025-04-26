@@ -31,11 +31,13 @@ public class SendQuestionHandler implements MessageHandler {
     @Override
     public boolean canHandle(BaseMessageIn message, WebSocketSession session) {
         Game game = gameService.getById(helperService.extractGameId(session));
-        int speed = gameService.calculateSpeed(game.getClicksAt());
+        int speed = gameService.calculateSpeed(game.getClicksAt()) + 1; // Этот клик не считается. Клик пришел, но ещё не записан
+
+        System.out.println("СОКРОСТЬ ПРОВЕРКИ НА ВОПРОСЕ: " + speed);
 
         if (game.getMyAnswers().isEmpty()) {
             return speed >= gameProps.getRequireSpeedClicksQuestions()
-                    && game.getStartedAt()!=null
+                    && game.getStartedAt() != null
                     && Duration.between(game.getStartedAt(), Instant.now()).getSeconds() > gameProps.getRequireTimeoutQuestionsInSeconds();
         }
 

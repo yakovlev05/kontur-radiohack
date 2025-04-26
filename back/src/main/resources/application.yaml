@@ -18,7 +18,7 @@ game:
   window-clicks-speed-in-seconds: 1
   click-damage: 1
   require-timeout-questions-in-seconds: 1
-  require-speed-clicks-questions: 1
-  time-to-answer-in-seconds: 50
+  require-speed-clicks-questions: 5
+  time-to-answer-in-seconds: 5
   damage-right-answer: 30
   damage-wrong-answer: 50
