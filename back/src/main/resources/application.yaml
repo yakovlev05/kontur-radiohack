@@ -10,3 +10,15 @@ spring:
       ddl-auto: update
     open-in-view: false
 
+
+game:
+  hr-hp: 100
+  my-hp: 100
+  duration-of-game-in-seconds: 60
+  window-clicks-speed-in-seconds: 1
+  click-damage: 1
+  require-timeout-questions-in-seconds: 1
+  require-speed-clicks-questions: 5
+  time-to-answer-in-seconds: 5
+  damage-right-answer: 30
+  damage-wrong-answer: 50
