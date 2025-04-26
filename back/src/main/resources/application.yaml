@@ -10,3 +10,7 @@ spring:
       ddl-auto: update
     open-in-view: false
 
+
+game:
+  hr-hp: 100
+  my-hp: 100
