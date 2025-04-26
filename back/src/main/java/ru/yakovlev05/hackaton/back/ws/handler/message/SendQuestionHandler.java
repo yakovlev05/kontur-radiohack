@@ -33,8 +33,6 @@ public class SendQuestionHandler implements MessageHandler {
         Game game = gameService.getById(helperService.extractGameId(session));
         int speed = gameService.calculateSpeed(game.getClicksAt()) + 1; // Этот клик не считается. Клик пришел, но ещё не записан
 
-        System.out.println("СОКРОСТЬ ПРОВЕРКИ НА ВОПРОСЕ: " + speed);
-
         if (game.getMyAnswers().isEmpty()) {
             return speed >= gameProps.getRequireSpeedClicksQuestions()
                     && game.getStartedAt() != null
