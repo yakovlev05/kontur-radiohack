@@ -32,4 +32,15 @@ public class ResultServiceImpl implements ResultService {
                 .map(resultMapper::toDto)
                 .toList();
     }
+
+    @Override
+    public boolean existUsername(String username) {
+        return resultRepository.existsByUsername(username);
+    }
+
+    @Override
+    public void save(Result result) {
+        resultRepository.save(result);
+    }
+
 }

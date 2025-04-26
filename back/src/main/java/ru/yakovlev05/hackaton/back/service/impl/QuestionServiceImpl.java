@@ -7,6 +7,8 @@ import ru.yakovlev05.hackaton.back.dto.question.QuestionResponseDto;
 import ru.yakovlev05.hackaton.back.dto.question.QuestionUpdateRequestDto;
 import ru.yakovlev05.hackaton.back.entity.Answer;
 import ru.yakovlev05.hackaton.back.entity.Question;
+import ru.yakovlev05.hackaton.back.entity.inmemory.Game;
+import ru.yakovlev05.hackaton.back.entity.inmemory.MyAnswer;
 import ru.yakovlev05.hackaton.back.exception.BadRequestException;
 import ru.yakovlev05.hackaton.back.exception.NotFoundException;
 import ru.yakovlev05.hackaton.back.mapper.QuestionMapper;
@@ -65,11 +67,28 @@ public class QuestionServiceImpl implements QuestionService {
         return questionMapper.toDto(question);
     }
 
+    @Override
+    public Question getQuestionForGame(Game game) {
+        List<Long> usedIds = game.getMyAnswers().stream()
+                .map(MyAnswer::getQuestionId)
+                .toList();
+
+        if (usedIds.isEmpty()) {
+            return questionRepository.findRandom()
+                    .orElseThrow(() -> new NotFoundException("Не смогли найти рандомный вопрос"));
+        }
+
+        return questionRepository.findRandomNotIdInList(usedIds)
+                .orElseThrow(() -> new NotFoundException("Нет подходящих вопросов для игры"));
+    }
+
+
     private void save(Question question) {
         questionRepository.save(question);
     }
 
-    private Question findById(Long id) {
+    @Override
+    public Question findById(Long id) {
         return questionRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Вопрос с id '%d' не найден", id));
     }

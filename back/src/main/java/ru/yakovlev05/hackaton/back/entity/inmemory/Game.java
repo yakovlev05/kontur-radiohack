@@ -8,7 +8,7 @@ import java.util.*;
 
 @Getter
 @Setter
-public class Session {
+public class Game {
 
     private String id = UUID.randomUUID().toString();
     private Instant createdAt = Instant.now();
@@ -20,8 +20,7 @@ public class Session {
     private Long hrHp;
     private Instant finishedAt;
     private GameResult gameResult = GameResult.NOT_FINISHED;
-    private Long countQuestions = 0L;
-    private Long countCorrectAnswers = 0L;
+    private List<MyAnswer> myAnswers = new ArrayList<>();
     private String username;
 
 

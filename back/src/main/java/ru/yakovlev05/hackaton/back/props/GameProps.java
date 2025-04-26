@@ -12,4 +12,12 @@ import org.springframework.stereotype.Component;
 public class GameProps {
     private Long myHp;
     private Long hrHp;
+    private Long durationOfGameInSeconds;
+    private Long windowClicksSpeedInSeconds;
+    private Long clickDamage;
+    private Long requireTimeoutQuestionsInSeconds;
+    private Long requireSpeedClicksQuestions;
+    private Long timeToAnswerInSeconds;
+    private Long damageRightAnswer;
+    private Long damageWrongAnswer;
 }
