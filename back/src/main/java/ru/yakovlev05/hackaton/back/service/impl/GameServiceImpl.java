@@ -40,15 +40,14 @@ public class GameServiceImpl implements GameService {
             throw new ConflictException("Имя пользователя '%s' уже занято", createGameRequestDto.username());
         }
 
-        String sessionId = UUID.randomUUID().toString();
         Game game = new Game();
         game.setMyHp(gameProps.getMyHp());
         game.setHrHp(gameProps.getHrHp());
         game.setUsername(createGameRequestDto.username());
 
-        gameStorage.addGame(sessionId, game);
+        gameStorage.addGame(game.getId(), game);
 
-        return new CreateGameResponseDto(sessionId);
+        return new CreateGameResponseDto(game.getId());
     }
 
     @Override
@@ -113,6 +112,11 @@ public class GameServiceImpl implements GameService {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    @Override
+    public void removeById(String id) {
+        gameStorage.removeGame(id);
     }
 
     private Long calculateScore(Game game) {

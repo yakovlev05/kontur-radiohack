@@ -1,6 +1,7 @@
 package ru.yakovlev05.hackaton.back.ws.handler.message;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 import ru.yakovlev05.hackaton.back.entity.inmemory.Game;
@@ -11,6 +12,7 @@ import ru.yakovlev05.hackaton.back.ws.dto.in.BaseMessageIn;
 import ru.yakovlev05.hackaton.back.ws.dto.out.SpeedMessageOut;
 import ru.yakovlev05.hackaton.back.ws.dto.out.TimeUpMessageOut;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -18,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Первый клик, запускает игру
  */
+@Slf4j
 @RequiredArgsConstructor
 @Component
 public class FirstClickMessageHandler implements MessageHandler {
@@ -68,8 +71,13 @@ public class FirstClickMessageHandler implements MessageHandler {
             timeUpMessageOut.setWin(true);
         }
 
-        if (session.isOpen()) {
-            helperService.serializeAndSend(session, timeUpMessageOut);
+        helperService.serializeAndSend(session, timeUpMessageOut);
+        gameService.removeById(game.getId());
+        try {
+            session.close();
+        } catch (IOException e) {
+            log.error("Ошибка при закрытии ws соединения, когда игра закончена");
+//            throw new RuntimeException(e);
         }
     }
 }

@@ -20,4 +20,6 @@ public interface GameService {
     void incrementClicks(Game game);
 
     void saveAndSendResultGameMessage(WebSocketSession session, Game game);
+
+    void removeById(String id);
 }
