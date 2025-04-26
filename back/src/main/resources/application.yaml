@@ -12,13 +12,13 @@ spring:
 
 
 game:
-  hr-hp: 100
-  my-hp: 100
-  duration-of-game-in-seconds: 60
-  window-clicks-speed-in-seconds: 1
-  click-damage: 1
-  require-timeout-questions-in-seconds: 1
-  require-speed-clicks-questions: 5
-  time-to-answer-in-seconds: 5
-  damage-right-answer: 30
-  damage-wrong-answer: 50
+  hr-hp: ${HR_HP:100}
+  my-hp: ${MY_HP:100}
+  duration-of-game-in-seconds: ${DURATION_OF_GAME_IN_SECONDS:60}
+  window-clicks-speed-in-seconds: ${WINDOW_CLICKS_SPEED_IN_SECONDS:1}
+  click-damage: ${CLICK_DAMAGE:1}
+  require-timeout-questions-in-seconds: ${REQUIRE_TIMEOUT_QUESTIONS_IN_SECONDS:1}
+  require-speed-clicks-questions: ${REQUIRE_SPEED_CLICKS_QUESTIONS:5}
+  time-to-answer-in-seconds: ${TIME_TO_ANSWER_IN_SECONDS:5}
+  damage-right-answer: ${DAMAGE_RIGHT_ANSWER:30}
+  damage-wrong-answer: ${DAMAGE_WRONG_ANSWER:50}
