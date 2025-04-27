@@ -33,7 +33,7 @@ public class FirstClickMessageHandler implements MessageHandler {
     @Override
     public boolean canHandle(BaseMessageIn message, WebSocketSession session) {
         Game game = gameService.getById(helperService.extractGameId(session));
-        return game.getStartedAt() == null && game.getCountClicks().equals(0L);
+        return game.getStartedAt() == null;
     }
 
     @Override
