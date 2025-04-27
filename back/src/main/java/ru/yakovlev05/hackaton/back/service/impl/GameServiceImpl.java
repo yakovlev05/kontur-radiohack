@@ -8,7 +8,6 @@ import ru.yakovlev05.hackaton.back.dto.session.CreateGameRequestDto;
 import ru.yakovlev05.hackaton.back.dto.session.CreateGameResponseDto;
 import ru.yakovlev05.hackaton.back.entity.Result;
 import ru.yakovlev05.hackaton.back.entity.inmemory.Game;
-import ru.yakovlev05.hackaton.back.entity.inmemory.MyAnswer;
 import ru.yakovlev05.hackaton.back.exception.ConflictException;
 import ru.yakovlev05.hackaton.back.exception.NotFoundException;
 import ru.yakovlev05.hackaton.back.props.GameProps;
@@ -123,7 +122,7 @@ public class GameServiceImpl implements GameService {
 
     private Long calculateScore(Game game) {
         long countSuccessAnswer = game.getMyAnswers().stream()
-                .filter(MyAnswer::getIsCorrect)
+                .filter(ans -> ans.getIsCorrect() != null && ans.getIsCorrect())
                 .count();
         return (countSuccessAnswer * 10 + game.getCountClicks() * 2) + (game.getMyHp() - game.getHrHp())
                 + (1000 / Duration.between(game.getStartedAt(), game.getFinishedAt()).getSeconds());
