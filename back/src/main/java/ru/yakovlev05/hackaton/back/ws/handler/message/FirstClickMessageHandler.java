@@ -71,6 +71,8 @@ public class FirstClickMessageHandler implements MessageHandler {
             timeUpMessageOut.setWin(true);
         }
 
+        game.setFinishedAt(Instant.now());
+
         helperService.serializeAndSend(session, timeUpMessageOut);
         gameService.removeById(game.getId());
         try {
