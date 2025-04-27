@@ -89,6 +89,7 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public void saveAndSendResultGameMessage(WebSocketSession session, Game game) {
+        game.setFinishedAt(Instant.now());
         boolean isWin = game.getHrHp() <= 0;
         Long score = calculateScore(game);
         if (isWin) {
