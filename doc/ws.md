@@ -49,6 +49,7 @@ URL для WS: `wss://kontur.yakovlev05.ru/ws/game`
 - ANSWER_RESULT
 - TIME_UP
 - RESULT
+- EXPIRE_ANSWER
 
 ### 1. SPEED
 
@@ -175,5 +176,22 @@ URL для WS: `wss://kontur.yakovlev05.ru/ws/game`
 - `score` - количество очков
 - `username` - имя пользователя
 - `win` - выиграл ли? да
+- `myHp` - хп человека на собеседовании
+- `hrHp` - чр HR, принимающего собеседование
+
+### 6. EXPIRE_ANSWER
+
+```
+{
+  "type": "EXPIRE_ANSWER",
+  "myHp": 50,
+  "hrHp": 83
+}
+```
+
+**Описание:** ответ при истечении срока ответа на вопрос
+
+**Поля:**
+
 - `myHp` - хп человека на собеседовании
 - `hrHp` - чр HR, принимающего собеседование
