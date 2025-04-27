@@ -1,5 +1,3 @@
-// Улучшенный game.js с исправлениями по документации
-
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('go-to-nickname')
       .addEventListener('click', () => toggleScreens('menu', 'nickname'));
@@ -8,13 +6,13 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('play-again-btn')
       .addEventListener('click', () => location.reload());
   
-    // Кликом по battlefield тоже запускаем
+    // Клик по полю тоже запускает
     document.getElementById('battlefield')
       .addEventListener('click', sendClick);
   });
   
   let socket, gameId, timerInterval;
-  let canClick = true;
+  let canClick = false;
   
   function toggleScreens(hide, show) {
     document.getElementById(`${hide}-screen`).classList.add('d-none');
@@ -29,12 +27,13 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       gameId = await createGameSession(username);
       connectWebSocket(gameId);
+      canClick = true;
     } catch (e) {
       alert(`Ошибка старта: ${e.message}`);
     }
   }
   
-  const host = 'kontur.yakovlev05.ru'; // Ваш API-хост
+  const host = 'kontur.yakovlev05.ru';
   
   async function createGameSession(username) {
     const res = await fetch(`https://${host}/api/v1/sessions`, {
@@ -50,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function connectWebSocket(id) {
     socket = new WebSocket(`wss://${host}/ws/game?gameId=${id}`);
   
-    socket.onopen = () => sendClick();
+    //socket.onopen = () => sendClick();
     socket.onmessage = e => handleServerMessage(JSON.parse(e.data));
     socket.onerror = () => alert('Ошибка соединения');
   }
@@ -62,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
   function handleServerMessage(msg) {
-    // Всегда обновляем HP, если есть
+    // Обновляем HP, если есть
     if (typeof msg.myHp === 'number' && typeof msg.hrHp === 'number') {
       updateHP(msg.myHp, msg.hrHp);
     }
@@ -74,8 +73,10 @@ document.addEventListener('DOMContentLoaded', () => {
       case 'ANSWER_RESULT':
         showAnswerResult(msg);
         break;
+      case 'EXPIRE_ANSWER':
+        handleExpireAnswer(msg);
+        break;
       case 'TIME_UP':
-        // При истечении времени — конец игры
         endGame(msg);
         break;
       case 'RESULT':
@@ -93,7 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
     canClick = false;
     clearInterval(timerInterval);
   
-    // Отрисовываем текст и ответы
     document.getElementById('question-text').textContent = q.text;
     const cont = document.getElementById('answers-container');
     cont.innerHTML = '';
@@ -102,7 +102,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const btn = document.createElement('button');
       btn.className = 'btn btn-outline-secondary m-1';
       btn.textContent = a.text;
-      btn.dataset.id = a.id;           // сохраняем id
+      btn.dataset.id = a.id;
+      btn.disabled = false;
       btn.onclick = () => sendAnswer(a.id);
       cont.appendChild(btn);
     });
@@ -113,14 +114,12 @@ document.addEventListener('DOMContentLoaded', () => {
   function sendAnswer(id) {
     if (socket && socket.readyState === WebSocket.OPEN) {
       socket.send(JSON.stringify({ type: 'ANSWER', answerId: id }));
-      // Блокируем кнопки после клика
       document.querySelectorAll('#answers-container button')
         .forEach(b => b.disabled = true);
     }
   }
   
   function showAnswerResult(r) {
-    // Выделяем правильный и неправильный ответы
     document.querySelectorAll('#answers-container button').forEach(b => {
       const bid = parseInt(b.dataset.id, 10);
       if (bid === r.correctAnswerId) {
@@ -131,13 +130,18 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   
-    // Через полсекунды готовимся к следующему клику
     setTimeout(() => {
+      resetQuestionUI('Ждём вопрос...');
       canClick = true;
-      document.getElementById('answers-container').innerHTML = '';
-      document.getElementById('question-text').textContent = 'Ждём вопрос...';
-      document.getElementById('timer').textContent = '';
     }, 1500);
+  }
+  
+  function handleExpireAnswer(msg) {
+    // При истечении времени ответа
+    clearInterval(timerInterval);
+    // HP уже обновлено выше
+    resetQuestionUI('Время на ответ истекло');
+    canClick = true;
   }
   
   function startTimer(seconds) {
@@ -156,16 +160,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 1000);
   }
   
+  function resetQuestionUI(message) {
+    document.getElementById('answers-container').innerHTML = '';
+    document.getElementById('question-text').textContent = message;
+    document.getElementById('timer').textContent = '';
+  }
+  
   function endGame(res) {
     clearInterval(timerInterval);
     toggleScreens('game', 'victory');
   
-    // Подпись результата
-    const msgEl = document.getElementById('result-message');
-    msgEl.textContent = res.win ? 'Поздравляем, вы победили!' : 'Время вышло. Вы проиграли.';
-  
-    const scoreEl = document.getElementById('score-message');
-    scoreEl.textContent = typeof res.score === 'number' ? `Ваш счёт: ${res.score}` : '';
+    document.getElementById('result-message').textContent =
+      res.win ? 'Поздравляем, вы победили!' : 'Время вышло. Вы проиграли.';
+    document.getElementById('score-message').textContent =
+      typeof res.score === 'number' ? `Ваш счёт: ${res.score}` : '';
   
     socket.close();
   }
