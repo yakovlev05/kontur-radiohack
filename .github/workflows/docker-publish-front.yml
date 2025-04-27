@@ -64,3 +64,17 @@ jobs:
           TAGS: ${{ steps.meta.outputs.tags }}
           DIGEST: ${{ steps.build-and-push.outputs.digest }}
         run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
+
+
+
+
+  deployment:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Webhook
+      uses: fjogeleit/http-request-action@v1
+      with:
+        url: ${{ secrets.WEBHOOK }}
+        method: 'POST'
+        timeout: 200000
