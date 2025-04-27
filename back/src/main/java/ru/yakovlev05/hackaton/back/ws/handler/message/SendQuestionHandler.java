@@ -36,10 +36,12 @@ public class SendQuestionHandler implements MessageHandler {
         if (game.getMyAnswers().isEmpty()) {
             return speed >= gameProps.getRequireSpeedClicksQuestions()
                     && game.getStartedAt() != null
-                    && Duration.between(game.getStartedAt(), Instant.now()).getSeconds() > gameProps.getRequireTimeoutQuestionsInSeconds();
+                    && Duration.between(game.getStartedAt(), Instant.now()).getSeconds() > gameProps.getRequireTimeoutQuestionsInSeconds()
+                    && Duration.between(Instant.now(), game.getStartedAt().plusSeconds(gameProps.getDurationOfGameInSeconds())).getSeconds() > gameProps.getTimeToAnswerInSeconds();
         }
 
         return speed >= gameProps.getRequireSpeedClicksQuestions()
+                && Duration.between(Instant.now(), game.getStartedAt().plusSeconds(gameProps.getDurationOfGameInSeconds())).getSeconds() > gameProps.getTimeToAnswerInSeconds()
                 &&
                 (
                         Duration.between(game.getMyAnswers().getLast().getExpiresAt(), Instant.now()).getSeconds() > gameProps.getRequireTimeoutQuestionsInSeconds()
