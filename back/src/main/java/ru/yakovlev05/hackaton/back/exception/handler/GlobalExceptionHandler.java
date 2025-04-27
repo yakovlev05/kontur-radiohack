@@ -1,6 +1,7 @@
 package ru.yakovlev05.hackaton.back.exception.handler;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -12,12 +13,14 @@ import ru.yakovlev05.hackaton.back.exception.NotFoundException;
 
 import java.time.Instant;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ExceptionResponseDto handleException(Exception exception, HttpServletRequest request) {
+        log.error("Internal Server Error", exception);
         return new ExceptionResponseDto(
                 Instant.now(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),

@@ -22,6 +22,7 @@ public class WsConfig implements WebSocketConfigurer {
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(gameHandler, "/ws/game")
                 .setAllowedOrigins("*")
+                .setAllowedOriginPatterns("/**")
                 .addInterceptors(new HttpSessionHandshakeInterceptor())
                 .addInterceptors(authInterceptor); // Проверка сессии, валидация
     }
