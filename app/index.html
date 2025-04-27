@@ -12,13 +12,13 @@
       background-size: cover;
     }
     #player-animation {
-      width: 200px;
-      height: 200px;
+      width: 300px;
+      height: 300px;
       margin-right:-60px; /* Сдвигаем гифки друг к другу */
     }
     #hr-animation {
-      width: 200px;
-      height: 200px;
+      width: 300px;
+      height: 300px;
       margin-left:-60px; /* Сдвигаем гифки друг к другу */
     }
     #battlefield {
@@ -34,11 +34,32 @@
       border: 2px solid #000;
       border-radius: 10px;
     }
+    .shake {
+      animation: shake 0.1s cubic-bezier(.36,.07,.19,.97) both;
+      transform: translate3d(0, 0, 0);
+    }
+    @keyframes shake {
+      10%, 90% {
+        transform: translate3d(-1px, 0, 0);
+      }
+
+      20%, 80% {
+        transform: translate3d(2px, 0, 0);
+      }
+
+      30%, 50%, 70% {
+        transform: translate3d(-4px, 0, 0);
+      }
+
+      40%, 60% {
+        transform: translate3d(4px, 0, 0);
+      }
+    }
   </style>
 </head>
 <body>
 <!-- Меню -->
-<div id="menu-screen" class="d-flex flex-column justify-content-start align-items-center vh-100">
+<div id="menu-screen" class="d-flex flex-column justify-content-end align-items-center vh-100">
   <button id="go-to-nickname" class="btn btn-primary btn-lg">Начать игру</button>
 </div>
 

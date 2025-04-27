@@ -25,7 +25,7 @@ function customizeMenu() {
   logo.alt = 'Собеседование в Контур';
   logo.className = 'menu-logo mb-4';
   logo.style.maxWidth = '80%';
-  logo.style.height = 'auto';
+  logo.style.height = '100hv';
   logo.style.zIndex = '1';
   menu.prepend(logo);
 
@@ -118,14 +118,14 @@ let animationTimeouts = { player: null, hr: null };
 const ANIMATIONS = {
   nerd: {
     static: { file: 'nerd_static.gif', duration: 0 },
-    attack: { file: 'nerd_attack.gif', duration: 800 },
+    attack: { file: 'nerd_attack.gif', duration: 300 },
     think: { file: 'nerd_think.gif', duration: 5000 },
     think_correct: { file: 'nerd_think_correct.gif', duration: 1500 },
     think_wrong: { file: 'nerd_think_wrong.gif', duration: 1500 },
   },
   karen: {
     static: { file: 'karen_static.gif', duration: 0 },
-    attack: { file: 'karen_attack.gif', duration: 800 },
+    attack: { file: 'karen_attack.gif', duration: 300 },
     think: { file: 'karen_think.gif', duration: 5000 }
   }
 };
@@ -156,8 +156,23 @@ function sendClick() {
   if (socket && socket.readyState === WebSocket.OPEN) {
     playAnimation('nerd', 'attack'); // Player attacks
     playAnimation('karen', 'attack'); // Player attacks
+    applyShakeEffect();
     socket.send(JSON.stringify({ type: 'CLICK' }));
   }
+}
+
+function applyShakeEffect() {
+  const gameScreen = document.getElementById('game-screen');
+  gameScreen.classList.add('shake');
+  playerGif.classList.add('shake');
+  hrGif.classList.add('shake');
+
+  // Удаляем класс после завершения анимации
+  setTimeout(() => {
+    gameScreen.classList.remove('shake');
+    playerGif.classList.remove('shake');
+    hrGif.classList.remove('shake');
+  }, 500);
 }
 
 function handleServerMessage(msg) {
