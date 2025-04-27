@@ -11,10 +11,13 @@ import ru.yakovlev05.hackaton.back.service.GameService;
 import ru.yakovlev05.hackaton.back.service.QuestionService;
 import ru.yakovlev05.hackaton.back.service.impl.HelperService;
 import ru.yakovlev05.hackaton.back.ws.dto.in.BaseMessageIn;
+import ru.yakovlev05.hackaton.back.ws.dto.out.QuestionExpireMessageOut;
 import ru.yakovlev05.hackaton.back.ws.dto.out.QuestionMessageOut;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Отправляет вопрос на клик
@@ -27,6 +30,7 @@ public class SendQuestionHandler implements MessageHandler {
     private final HelperService helperService;
     private final GameProps gameProps;
     private final QuestionService questionService;
+    private final ScheduledExecutorService scheduledExecutorService;
 
     @Override
     public boolean canHandle(BaseMessageIn message, WebSocketSession session) {
@@ -69,6 +73,28 @@ public class SendQuestionHandler implements MessageHandler {
 
         QuestionMessageOut questionMessageOut = helperService.toDto(question, myAnswer, game);
 
+        scheduledExecutorService.schedule(() -> sendExpireNotify(session, game, myAnswer), gameProps.getTimeToAnswerInSeconds(), TimeUnit.SECONDS);
+
         helperService.serializeAndSend(session, questionMessageOut);
+    }
+
+
+    public void sendExpireNotify(WebSocketSession session, Game game, MyAnswer myAnswer) {
+        if (myAnswer.getAnsweredAt() != null) {
+            return;
+        }
+
+        game.setMyHp(game.getMyHp() - gameProps.getDamageWrongAnswer());
+
+        if (game.getMyHp() <= 0) { // Поражение?
+            gameService.saveAndSendResultGameMessage(session, game);
+            return;
+        }
+
+        QuestionExpireMessageOut questionExpireMessageOut = new QuestionExpireMessageOut();
+        questionExpireMessageOut.setMyHp(game.getMyHp());
+        questionExpireMessageOut.setHrHp(game.getHrHp());
+
+        helperService.serializeAndSend(session, questionExpireMessageOut);
     }
 }

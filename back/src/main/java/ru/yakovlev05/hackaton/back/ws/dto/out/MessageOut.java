@@ -6,4 +6,5 @@ public enum MessageOut {
     ANSWER_RESULT,
     TIME_UP, // время вышло
     RESULT,
+    EXPIRE_ANSWER,
 }
