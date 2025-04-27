@@ -1,3 +1,12 @@
+// Подключение шрифта MinecraftSeven
+const minecraftFont = new FontFace('MinecraftSeven', 'url(./MinecraftSeven.woff) format("woff")');
+minecraftFont.load().then(function(loadedFont) {
+  document.fonts.add(loadedFont);
+  document.body.style.fontFamily = 'MinecraftSeven, sans-serif';
+}).catch(function(error) {
+  console.error('Не удалось загрузить шрифт MinecraftSeven:', error);
+});
+
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('go-to-nickname')
       .addEventListener('click', () => toggleScreens('menu', 'nickname'));
