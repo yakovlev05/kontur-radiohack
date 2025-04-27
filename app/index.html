@@ -6,55 +6,95 @@
   <title>Собеседование в Контур</title>
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: url('res/new-scene.png') no-repeat center center fixed;
+      background-size: cover;
+    }
+    #player-animation {
+      width: 200px;
+      height: 200px;
+      margin-right:-60px; /* Сдвигаем гифки друг к другу */
+    }
+    #hr-animation {
+      width: 200px;
+      height: 200px;
+      margin-left:-60px; /* Сдвигаем гифки друг к другу */
+    }
+    #battlefield {
+      width: 200px;
+      height: 150px;
+      cursor: pointer;
+      background-color: #f8f9fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 20px;
+      border: 2px solid #000;
+      border-radius: 10px;
+    }
+  </style>
 </head>
 <body>
-  <!-- Меню -->
-  <div id="menu-screen" class="d-flex flex-column justify-content-center align-items-center vh-100">
-    <button id="go-to-nickname" class="btn btn-primary btn-lg">Начать игру</button>
-  </div>
+<!-- Меню -->
+<div id="menu-screen" class="d-flex flex-column justify-content-start align-items-center vh-100">
+  <button id="go-to-nickname" class="btn btn-primary btn-lg">Начать игру</button>
+</div>
 
-  <!-- Ввод никнейма -->
-  <div id="nickname-screen" class="d-flex flex-column justify-content-center align-items-center vh-100 d-none">
-    <h2 class="mb-3">Введите ваш никнейм</h2>
-    <input id="username-input" type="text" maxlength="20" class="form-control w-50 mb-3" placeholder="Никнейм">
-    <button id="start-btn" class="btn btn-success">Играть</button>
-  </div>
+<!-- Ввод никнейма -->
+<div id="nickname-screen" class="d-flex flex-column justify-content-center align-items-center vh-100 d-none">
+  <h2 class="mb-3">Введите ваш никнейм</h2>
+  <input id="username-input" type="text" maxlength="20" class="form-control w-50 mb-3" placeholder="Никнейм">
+  <button id="start-btn" class="btn btn-success">Играть</button>
+</div>
 
-  <!-- Игровой экран -->
-  <div id="game-screen" class="container py-4 d-none">
-    <div class="row mb-4">
-      <div class="col text-center">
+<!-- Игровой экран -->
+<div id="game-screen" class="container py-4 d-none">
+
+  <div class="row mb-4 justify-content-center">
+    <div class="col-auto text-center d-flex">
+      <div class="me-2">
         <div>Ваше здоровье:</div>
-        <div class="progress">
+        <div class="progress mb-2">
           <div id="my-hp" class="progress-bar bg-success" role="progressbar" style="width: 100%"></div>
         </div>
+        <div id="player-animation">
+          <img id="player-gif" class="h-100 w-100 object-fit-contain" src="res/nerd_static.gif" alt="Player animation">
+        </div>
       </div>
-      <div class="col text-center">
+      <div>
         <div>Противник:</div>
-        <div class="progress">
+        <div class="progress mb-2">
           <div id="hr-hp" class="progress-bar bg-danger" role="progressbar" style="width: 100%"></div>
+        </div>
+        <div id="hr-animation">
+          <img id="hr-gif" class="h-100 w-100 object-fit-contain" src="res/karen_static.gif" alt="HR animation">
         </div>
       </div>
     </div>
-    <div id="battlefield" class="border rounded mx-auto d-flex justify-content-center align-items-center mb-4" style="width:300px; height:300px; cursor:pointer; background-color:#f8f9fa;">
-      <span style="color: black;">КЛИКАЙ!</span>
-    </div>
-    <div id="question-section" class="text-center">
-      <div id="timer" class="h5 mb-2"></div>
-      <h2 id="question-text">Ждем вопрос...</h2>
-      <div id="answers-container" class="d-grid gap-2 col-6 mx-auto"></div>
-    </div>
   </div>
 
-  <!-- Экран победы/поражения -->
-  <div id="victory-screen" class="d-flex flex-column justify-content-center align-items-center vh-100 d-none">
-    <h2 id="result-message" class="mb-3"></h2>
-    <p id="score-message" class="mb-4"></p>
-    <button id="play-again-btn" class="btn btn-outline-primary">Играть снова</button>
+  <div id="battlefield" class="mx-auto mb-4">
+    КЛИКАЙ!
   </div>
 
-  <!-- Bootstrap JS + Game script -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="game.js"></script>
+  <div id="question-section" class="text-center">
+    <div id="timer" class="h5 mb-2"></div>
+    <h2 id="question-text">Ждем вопрос...</h2>
+    <div id="answers-container" class="d-grid gap-2 col-6 mx-auto"></div>
+  </div>
+</div>
+
+<!-- Экран победы/поражения -->
+<div id="victory-screen" class="d-flex flex-column justify-content-center align-items-center vh-100 d-none">
+  <h2 id="result-message" class="mb-3"></h2>
+  <p id="score-message" class="mb-4"></p>
+  <button id="play-again-btn" class="btn btn-outline-primary">Играть снова</button>
+</div>
+
+<!-- Bootstrap JS + Game script -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="game.js"></script>
 </body>
 </html>

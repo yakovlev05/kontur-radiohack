@@ -111,8 +111,51 @@ function connectWebSocket(id) {
   socket.onclose = () => console.log('WebSocket closed');
 }
 
+// Get both GIF elements
+const playerGif = document.getElementById('player-gif'); // Nerd
+const hrGif = document.getElementById('hr-gif'); // Karen
+let animationTimeouts = { player: null, hr: null };
+const ANIMATIONS = {
+  nerd: {
+    static: { file: 'nerd_static.gif', duration: 0 },
+    attack: { file: 'nerd_attack.gif', duration: 800 },
+    think: { file: 'nerd_think.gif', duration: 5000 },
+    think_correct: { file: 'nerd_think_correct.gif', duration: 1500 },
+    think_wrong: { file: 'nerd_think_wrong.gif', duration: 1500 },
+  },
+  karen: {
+    static: { file: 'karen_static.gif', duration: 0 },
+    attack: { file: 'karen_attack.gif', duration: 800 },
+    think: { file: 'karen_think.gif', duration: 5000 }
+  }
+};
+
+// Animation control function for both characters
+function playAnimation(character, type) {
+  const anim = ANIMATIONS[character][type];
+  if (!anim) return;
+
+  const gifElement = character === 'nerd' ? playerGif : hrGif;
+  const timeoutKey = character === 'nerd' ? 'player' : 'hr';
+
+  // Clear previous timeout
+  clearTimeout(animationTimeouts[timeoutKey]);
+
+  // Set new animation
+  gifElement.src = `./res/${anim.file}`;
+
+  // Set timeout to return to static
+  if (anim.duration > 0) {
+    animationTimeouts[timeoutKey] = setTimeout(() => {
+      gifElement.src = `./res/${character}_static.gif`;
+    }, anim.duration);
+  }
+}
+
 function sendClick() {
   if (socket && socket.readyState === WebSocket.OPEN) {
+    playAnimation('nerd', 'attack'); // Player attacks
+    playAnimation('karen', 'attack'); // Player attacks
     socket.send(JSON.stringify({ type: 'CLICK' }));
   }
 }
@@ -137,6 +180,8 @@ function updateHP(my, hr) {
 
 function showQuestion(q) {
   clearInterval(timerInterval);
+  playAnimation('nerd', 'think'); // Player thinks
+  playAnimation('karen', 'think'); // HR also thinks
   document.getElementById('question-text').textContent = q.text;
   const cont = document.getElementById('answers-container');
   cont.innerHTML = '';
@@ -165,6 +210,10 @@ function showAnswerResult(r) {
     if (bid === r.correctAnswerId) b.classList.replace('btn-outline-light', 'btn-success');
     if (bid === r.yourAnswerId && !r.correct) b.classList.replace('btn-outline-light', 'btn-danger');
   });
+
+  playAnimation('nerd', r.correct ? 'think_correct' : 'think_wrong');
+  playAnimation('karen', r.correct ? 'attack' : 'think');
+
   setTimeout(() => resetQuestionUI('Ждём вопрос...'), 1500);
 }
 
