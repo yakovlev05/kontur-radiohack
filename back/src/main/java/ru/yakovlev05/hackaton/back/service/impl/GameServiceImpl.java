@@ -8,6 +8,7 @@ import ru.yakovlev05.hackaton.back.dto.session.CreateGameRequestDto;
 import ru.yakovlev05.hackaton.back.dto.session.CreateGameResponseDto;
 import ru.yakovlev05.hackaton.back.entity.Result;
 import ru.yakovlev05.hackaton.back.entity.inmemory.Game;
+import ru.yakovlev05.hackaton.back.entity.inmemory.MyAnswer;
 import ru.yakovlev05.hackaton.back.exception.ConflictException;
 import ru.yakovlev05.hackaton.back.exception.NotFoundException;
 import ru.yakovlev05.hackaton.back.props.GameProps;
@@ -17,10 +18,10 @@ import ru.yakovlev05.hackaton.back.ws.dto.out.ResultGameMessageOut;
 import ru.yakovlev05.hackaton.back.ws.session.GameStorage;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Deque;
-import java.util.UUID;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -120,8 +121,11 @@ public class GameServiceImpl implements GameService {
     }
 
     private Long calculateScore(Game game) {
-        return 7777L;
-        // todo: Сделать расчёт очков
+        long countSuccessAnswer = game.getMyAnswers().stream()
+                .filter(MyAnswer::getIsCorrect)
+                .count();
+        return (countSuccessAnswer * 10 + game.getCountClicks() * 2) + (game.getMyHp() - game.getHrHp())
+                + (1000 / Duration.between(game.getStartedAt(), game.getFinishedAt()).getSeconds());
     }
 
     private boolean validateUsername(String username) {
