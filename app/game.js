@@ -299,8 +299,10 @@ function handleServerMessage(msg) {
 }
 
 function updateHP(my, hr) {
+    const hrPercent = Math.max(0, Math.min(100, (hr / 1000) * 100));
+    
     document.getElementById('my-hp').style.width = `${my}%`;
-    document.getElementById('hr-hp').style.width = `${hr}%`;
+    document.getElementById('hr-hp').style.width = `${hrPercent}%`;
 }
 
 function blockButton() {
@@ -363,12 +365,13 @@ function showAnswerResult(r) {
 
     playAnimation(r.correct ? 'think_correct' : 'think_wrong');
 
-    setTimeout(() => resetQuestionUI('Нажимайте быстрее'), 1500);
+    setTimeout(() => resetQuestionUI('Быстро нажимайте!'), 1500);
+    clearInterval(timerInterval);
 }
 
 function handleExpireAnswer(msg) {
     clearInterval(timerInterval);
-    resetQuestionUI('Время на ответ истекло');
+    resetQuestionUI('Время на ответ истекло, продолжайте быстро нажимать');
 }
 
 function startTimer(seconds) {
@@ -385,12 +388,7 @@ function startTimer(seconds) {
 
 function resetQuestionUI(message) {
     canClick = true; // ✅ Разрешаем клик снова
-    switch(message){
-        case 'Нажимайте быстрее':
-            showButton()
-        case 'Время на ответ истекло':
-            showButton()
-    }
+    showButton();
 
     document.getElementById('answers-container').innerHTML = '';
     document.getElementById('question-text').textContent = message;
@@ -405,9 +403,17 @@ function endGame(res) {
     if (!res.win) {
         showDefeatScreen();
     } else {
-        toggleScreens('game', 'victory');
-        document.getElementById('result-message').textContent = 'Поздравляем, вы победили!';
-        document.getElementById('score-message').textContent = typeof res.score === 'number' ? `Ваш счёт: ${res.score}` : '';
+        // Воспроизводим анимацию проигрыша
+        const winGif = document.getElementById('win-animation');
+        winGif.style.display = 'block'; // Показываем гифку проигрыша
+
+        // Плавная смена экрана
+        setTimeout(() => {
+            toggleScreens('game', 'victory'); // Переход на экран поражения
+        }, 1000); // 1 секунда задержки для проигрыша
+
+        document.getElementById('victory-message').textContent = 'Поздравляем, вы победили!';
+        document.getElementById('player-statistics').textContent = typeof res.score === 'number' ? `Ваш счёт: ${res.score}` : '';
     }
 
     socket.close();
