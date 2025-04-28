@@ -5,6 +5,85 @@ minecraftFont.load().then(loaded => {
     document.body.style.fontFamily = 'MinecraftSeven, sans-serif';
 }).catch(err => console.error('Не удалось загрузить шрифт MinecraftSeven:', err));
 
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (window.innerWidth < 768) {
+        const gameScreen = document.getElementById('game-screen');
+        if (gameScreen) gameScreen.classList.remove('py-4');
+
+        const gameScreenRow = document.querySelector('#game-screen .row');
+        const gameScreenContent = document.querySelector('#game-screen .h-100.g-3');
+
+        if (gameScreenRow) gameScreenRow.classList.remove('row');
+        if (gameScreenContent) gameScreenContent.classList.add('d-flex', 'flex-column');
+
+        const fight = document.getElementById('fight');
+        const hpBlock = fight?.querySelector('.w-75.text-center.text-white');
+
+        if (fight && hpBlock && gameScreenContent) {
+            hpBlock.classList.remove('w-75', 'mt-4');
+            fight.removeChild(hpBlock);
+
+            gameScreenContent.prepend(fight);
+            gameScreenContent.prepend(hpBlock);
+        }
+
+        // Переносим battlefield
+        const battlefield = document.getElementById('battlefield');
+        const narrowPanel = document.querySelector('.narrow-panel.left-panel');
+
+        if (battlefield && narrowPanel && narrowPanel.parentNode) {
+            narrowPanel.parentNode.insertBefore(battlefield, narrowPanel);
+        }
+
+        // Настройка размеров character-animation
+        const characterAnimation = document.getElementById('character-animation');
+        if (characterAnimation) {
+            characterAnimation.style.width = '250px';
+            characterAnimation.style.height = '250px';
+            characterAnimation.style.margin = '0 auto -15px';
+        }
+
+        // Убираем min-height у текста вопроса
+        const questionText = document.getElementById('question-text');
+        if (questionText) {
+            questionText.style.minHeight = '0';
+        }
+
+        // Убираем margin-bottom: auto у question-section
+        const questionSection = document.getElementById('question-section');
+        if (questionSection) {
+            questionSection.style.marginBottom = '0';
+        }
+
+        // answers-container скрыть
+        const answersContainer = document.getElementById('answers-container');
+        if (answersContainer) {
+            answersContainer.style.minHeight = '0';
+            answersContainer.style.display = 'none';
+        }
+
+        // battlefield поведение
+        const originalShowQuestion = window.showQuestion;
+        window.showQuestion = function(q) {
+            if (battlefield) battlefield.style.display = 'none';
+            if (answersContainer) answersContainer.style.display = 'block';
+            if (questionText) questionText.textContent = q.text;
+            originalShowQuestion(q);
+        };
+
+        const originalResetQuestionUI = window.resetQuestionUI;
+        window.resetQuestionUI = function(message) {
+            if (battlefield) battlefield.style.display = 'block';
+            if (answersContainer) answersContainer.style.display = 'none';
+            originalResetQuestionUI(message);
+        };
+    }
+});
+
+
+
+
 // Темная тема и кастомизация меню
 function applyDarkTheme() {
     document.body.style.backgroundColor = '#000';
@@ -189,6 +268,8 @@ function sendClick() {
             battlefieldImg.style.transform = 'scale(1)';
         }, 100);
 
+        // showButton();
+
         // Делаем анимацию удара
         playAnimation('attack');
         socket.send(JSON.stringify({type: 'CLICK'}));
@@ -225,6 +306,21 @@ function updateHP(my, hr) {
 function blockButton() {
     const battlefieldImg = document.getElementById('battlefield-img');
     battlefieldImg.src = './res/Button_inactive.avif'; // Ставим картинку для заблокированной кнопки
+    if (window.innerWidth < 768) {
+        if (battlefieldImg) {
+            battlefieldImg.style.display = 'none';
+        }
+    }
+}
+
+function showButton() {
+    const battlefieldImg = document.getElementById('battlefield-img');
+    battlefieldImg.src = './res/Button_pressed.avif';
+    if (window.innerWidth < 768) {
+        if (battlefieldImg) {
+            battlefieldImg.style.display = '';
+        }
+    }
 }
 
 function showQuestion(q) {
@@ -267,7 +363,7 @@ function showAnswerResult(r) {
 
     playAnimation(r.correct ? 'think_correct' : 'think_wrong');
 
-    setTimeout(() => resetQuestionUI('Ждём вопрос...'), 1500);
+    setTimeout(() => resetQuestionUI('Нажимайте быстрее'), 1500);
 }
 
 function handleExpireAnswer(msg) {
@@ -289,9 +385,12 @@ function startTimer(seconds) {
 
 function resetQuestionUI(message) {
     canClick = true; // ✅ Разрешаем клик снова
-
-    const battlefieldImg = document.getElementById('battlefield-img');
-    battlefieldImg.src = './res/Button_unpressed.avif'; // Ставим исходную картинку
+    switch(message){
+        case 'Нажимайте быстрее':
+            showButton()
+        case 'Время на ответ истекло':
+            showButton()
+    }
 
     document.getElementById('answers-container').innerHTML = '';
     document.getElementById('question-text').textContent = message;

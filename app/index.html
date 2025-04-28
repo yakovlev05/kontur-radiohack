@@ -38,7 +38,7 @@
       background-color: rgba(0, 0, 0, 0.7);
       border-radius: 10px;
       padding: 20px;
-      height: 100%;
+      height: auto;
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
@@ -101,6 +101,39 @@
       0% { transform: scale(0); opacity: 1; }
       100% { transform: scale(1.5); opacity: 0; }
     }
+    @media (max-width: 768px) {
+      /* располагаем панели вертикально */
+      #game-screen .row        { flex-direction: column; }
+        
+      /* обе панели на всю ширину, отступ снизу у левой */
+      .narrow-panel,
+      .wide-panel              { width: 100% !important; }
+      .narrow-panel            { margin-bottom: 1rem; }
+        
+      /* центрируем сам бой по горизонтали и вертикали */
+      .wide-panel              { display: flex; justify-content: center; align-items: center; }
+        
+      /* сам «ринґ» */
+      #fight {
+        height: auto !important;      /* снимаем 100 % высоту */
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;               /* горизонтальный центр */
+        background-size: contain;     /* весь фон помещается в блок */
+        background-position: center;
+        background-repeat: no-repeat;
+      }
+    
+      /* гиф-анимация персонажа */
+      #character-animation {
+        width: 250px;
+        height: 250px;
+        margin-bottom: 20px;
+      }
+    
+      /* сама кнопка удара чуть меньше */
+      #battlefield-img { width: 180px; }
+    }
   </style>
 </head>
 <body>
@@ -125,7 +158,6 @@
         <div id="timer" class="h5 mb-2"></div>
         <div id="question-text">Ждем вопрос...</div>
         <div id="answers-container" class="d-grid gap-2 mx-auto"></div>
-        <button id="next-button" class="btn btn-warning d-none">Следующий вопрос</button>
       </div>
 
       <div id="battlefield" class="d-flex justify-content-center align-items-center" style="cursor: pointer; width: 100%;">
