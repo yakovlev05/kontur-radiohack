@@ -49,7 +49,10 @@ public class SendQuestionHandler implements MessageHandler {
                 &&
                 (
                         Duration.between(game.getMyAnswers().getLast().getExpiresAt(), Instant.now()).getSeconds() > gameProps.getRequireTimeoutQuestionsInSeconds()
-                                || game.getMyAnswers().getLast().getIsCorrect() != null
+                                && game.getMyAnswers().getLast().getAnsweredAt() == null
+                                ||
+                                game.getMyAnswers().getLast().getIsCorrect() != null
+                                        && Duration.between(game.getMyAnswers().getLast().getAnsweredAt(), Instant.now()).getSeconds() > gameProps.getRequireTimeoutQuestionsInSeconds()
                 );
     }
 
