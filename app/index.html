@@ -140,6 +140,7 @@
 <!-- Меню -->
 <div id="menu-screen" class="d-flex flex-column justify-content-start align-items-center vh-100">
   <button id="go-to-nickname" class="btn btn-primary btn-lg">Начать игру</button>
+  <image ></image>
 </div>
 
 <!-- Ввод никнейма -->
@@ -156,7 +157,7 @@
     <div class="col-auto narrow-panel left-panel">
       <div id="question-section">
         <div id="timer" class="h5 mb-2"></div>
-        <div id="question-text">Ждем вопрос...</div>
+        <div id="question-text">Быстро нажимайте!</div>
         <div id="answers-container" class="d-grid gap-2 mx-auto"></div>
       </div>
 
@@ -190,6 +191,7 @@
 <!-- Экран победы -->
 <div id="victory-screen" class="d-flex flex-column justify-content-center align-items-center vh-100 d-none">
   <h2 id="victory-message" class="mb-3">Поздравляем, вы победили!</h2>
+  <img id="win-animation" src="./res/victory.gif" alt="Win animation" class="mb-4">
   <p id="player-statistics" class="mb-4"></p>
   <button id="play-again-btn-win" class="btn btn-outline-primary">Играть снова</button>
 </div>
