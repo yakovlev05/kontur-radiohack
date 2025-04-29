@@ -5,7 +5,7 @@ minecraftFont.load().then(loaded => {
     document.body.style.fontFamily = 'MinecraftSeven, sans-serif';
 }).catch(err => console.error('Не удалось загрузить шрифт MinecraftSeven:', err));
 
-
+let currentPage = 0;
 document.addEventListener('DOMContentLoaded', () => {
     if (window.innerWidth < 768) {
         const gameScreen = document.getElementById('game-screen');
@@ -79,10 +79,31 @@ document.addEventListener('DOMContentLoaded', () => {
             originalResetQuestionUI(message);
         };
     }
+
+    document.getElementById('show-leaderboard')
+    .addEventListener('click', async () => {
+        currentPage = 0;
+        toggleScreens('menu', 'leaderboard');
+        await loadLeaderboard(currentPage);
+    });
+
+    document.getElementById('back-to-menu')
+        .addEventListener('click', () => toggleScreens('leaderboard', 'menu'));
+
+    document.getElementById('prev-page')
+        .addEventListener('click', async () => {
+            if (currentPage > 0) {
+                currentPage--;
+                await loadLeaderboard(currentPage);
+            }
+        });
+
+    document.getElementById('next-page')
+        .addEventListener('click', async () => {
+            currentPage++;
+            await loadLeaderboard(currentPage);
+        });
 });
-
-
-
 
 // Темная тема и кастомизация меню
 function applyDarkTheme() {
@@ -127,6 +148,13 @@ function customizeMenu() {
     startBtn.style.border = '1px solid rgba(255, 255, 255, 0.3)';
     startBtn.style.backdropFilter = 'blur(4px)';
     startBtn.style.zIndex = '1';
+
+    const showLeaderBoard = document.getElementById('show-leaderboard');
+    showLeaderBoard.style.backgroundColor = 'rgba(0, 0, 0, 0.6)';
+    showLeaderBoard.style.color = '#fff';
+    showLeaderBoard.style.border = '1px solid rgba(255, 255, 255, 0.3)';
+    showLeaderBoard.style.backdropFilter = 'blur(4px)';
+    showLeaderBoard.style.zIndex = '1';
 }
 
 // Инициализация UI при загрузке
@@ -203,6 +231,38 @@ function connectWebSocket(id) {
     socket.onmessage = e => handleServerMessage(JSON.parse(e.data));
     socket.onerror = () => alert('Ошибка соединения');
     socket.onclose = () => console.log('WebSocket closed');
+}
+
+
+async function loadLeaderboard(page = 0) {
+    const body = document.getElementById('leaderboard-body');
+    const indicator = document.getElementById('page-indicator');
+    body.innerHTML = '<tr><td colspan="4">Загрузка...</td></tr>';
+    indicator.textContent = `Страница ${page + 1}`;
+
+    try {
+        const res = await fetch(`https://${host}/api/v1/statistics?page=${page}&size=10`);
+        const data = await res.json();
+        body.innerHTML = '';
+        if (data.length === 0) {
+            body.innerHTML = '<tr><td colspan="4">Нет данных на этой странице</td></tr>';
+            return;
+        }
+
+        data.sort((a, b) => b.score - a.score).forEach((item, index) => {
+            const date = new Date(item.completedAt * 1000).toLocaleString('ru-RU');
+            body.innerHTML += `
+              <tr>
+                <td>${page * 10 + index + 1}</td>
+                <td>${item.username}</td>
+                <td>${item.score}</td>
+                <td>${date}</td>
+              </tr>
+            `;
+        });
+    } catch (e) {
+        body.innerHTML = '<tr><td colspan="4">Ошибка загрузки данных</td></tr>';
+    }
 }
 
 // Get both GIF elements
