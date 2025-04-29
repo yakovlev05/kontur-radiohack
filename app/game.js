@@ -124,7 +124,7 @@ function customizeMenu() {
     logo.src = './res/LOGO.png';
     logo.alt = 'Собеседование в Контур';
     logo.className = 'menu-logo mb-4';
-    logo.style.maxWidth = '80%';
+    logo.style.maxWidth = '75%';
     logo.style.height = 'auto';
     logo.style.zIndex = '1';
     menu.prepend(logo);
