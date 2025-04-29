@@ -103,7 +103,129 @@ document.addEventListener('DOMContentLoaded', () => {
             currentPage++;
             await loadLeaderboard(currentPage);
         });
+
+    document.getElementById('info-button').addEventListener('click', () => {
+        document.getElementById('team-popup').classList.remove('d-none');
+      });
+      
+      document.getElementById('close-popup').addEventListener('click', () => {
+        document.getElementById('team-popup').classList.add('d-none');
+      });  
+      
+    //   document.getElementById('volume-slider').addEventListener('input', (e) => {
+    //     if (currentTrack) currentTrack.volume = e.target.value;
+    // });
+    
+    document.getElementById('mute-button').addEventListener('click', () => {
+        if (currentTrack) {
+            if (currentTrack.volume > 0) {
+                currentTrack.volume = 0;
+                document.getElementById('volume-slider').value = 0;
+                document.getElementById('volume-slider-game').value = 0;
+                document.getElementById('mute-button').innerText = '🔇';
+                document.getElementById('mute-button-game').innerText = '🔇';
+            } else {
+                currentTrack.volume = 0.25;
+                document.getElementById('volume-slider').value = parseFloat(localStorage.getItem('volume'));
+                document.getElementById('volume-slider-game').value = parseFloat(localStorage.getItem('volume'));
+                document.getElementById('mute-button').innerText = '🔊';
+                document.getElementById('mute-button-game').innerText = '🔊';
+            }
+        }
+    });
+
+    let isFirstInteraction = false;
+
+    document.addEventListener('click', () => {
+        if (!isFirstInteraction) {
+            playTrack('menu');
+            isFirstInteraction = true;
+        }
+    }, { once: true }); // <-- чтобы обработчик сработал только 1 раз
+
 });
+
+// const tracks = {
+//     menu: new Audio('./res/music/Light Club - Blizzard.mp3'),
+//     fight: new Audio('./res/music/MEGALOVANIA.flac'),
+//     victory: new Audio('./res/music/victory.mp3'),
+//     defeat: new Audio('./res/music/defeat.mp3')
+// };
+
+// let currentTrack = tracks.menu;
+
+const trackList = {
+    menu: [
+        'Light Club - Blizzard.mp3', 
+        'Scattle - Inner Animal.mp3', 
+        'Jasper Byrne - Miami.mp3',
+        'Sneaky Driver.mp3',
+        'Disturbed Lines.mp3',
+        'You Will Never Know.mp3',
+        'Overdose.mp3'
+    ],
+    fight: [
+        'MEGALOVANIA.flac',
+        'Amireal - Spear Of Justice.mp3',
+        'Amireal - Megalovania.mp3'
+    ],
+    victory: [
+        'Jasper Byrne - Hotline (Analogue Mix).mp3', 
+        'Jasper Byrne - Miami.mp3',
+        'Mike Klubnika - 70K.mp3',
+        'You Will Never Know.mp3'
+    ],
+    defeat: [
+        'All For Now.mp3',
+        'Blue Room (KZ-version).mp3',
+        'Delusive Bunker.mp3'
+    ]
+};
+
+let currentTrack = null;
+
+// Загружаем настройки из localStorage
+const savedVolume = parseFloat(localStorage.getItem('volume'));
+const savedMuted = localStorage.getItem('muted') === 'true';
+
+// if (!isNaN(savedVolume)) {
+//     for (let key in tracks) tracks[key].volume = savedMuted ? 0 : savedVolume;
+// }
+
+let isMuted = savedMuted;
+
+// // Настроим автоповтор треков
+// for (let key in tracks) {
+//     tracks[key].loop = true;
+// }
+
+// Функция воспроизведения определённого трека
+// function playTrack(name) {
+//     if (currentTrack) currentTrack.pause();
+//     currentTrack = tracks[name];
+//     currentTrack.volume = document.getElementById('volume-slider').value;
+//     currentTrack.play().catch(err => console.error('Ошибка воспроизведения:', err));
+// }
+function playTrack(type) {
+    if (currentTrack) {
+        currentTrack.pause();
+        currentTrack.currentTime = 0;
+    }
+
+    const list = trackList[type];
+    if (!list || list.length === 0) return;
+
+    const filename = list[Math.floor(Math.random() * list.length)];
+    currentTrack = new Audio(`./res/music/${filename}`);
+    currentTrack.loop = true;
+
+    const savedVolume = parseFloat(localStorage.getItem('volume')) || 0.25;
+    const savedMuted = localStorage.getItem('muted') === 'true';
+
+    currentTrack.volume = savedMuted ? 0 : savedVolume;
+
+    currentTrack.play().catch(err => console.error('Ошибка воспроизведения:', err));
+}
 
 // Темная тема и кастомизация меню
 function applyDarkTheme() {
@@ -124,7 +246,7 @@ function customizeMenu() {
     logo.src = './res/LOGO.png';
     logo.alt = 'Собеседование в Контур';
     logo.className = 'menu-logo mb-4';
-    logo.style.maxWidth = '75%';
+    logo.style.maxWidth = '65%';
     logo.style.height = 'auto';
     logo.style.zIndex = '1';
     menu.prepend(logo);
@@ -179,6 +301,67 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('battlefield')
         .addEventListener('click', sendClick);
+
+    const volumeSlider = document.getElementById('volume-slider');
+    const muteButton = document.getElementById('mute-button');
+    const volumeSliderGame = document.getElementById('volume-slider-game');
+    const muteButtonGame = document.getElementById('mute-button-game');
+    
+    volumeSlider.value = isMuted ? 0 : parseFloat(localStorage.getItem('volume')) || 0.25;
+    volumeSliderGame.value = isMuted ? 0 : parseFloat(localStorage.getItem('volume')) || 0.25;
+    muteButton.innerText = isMuted ? '🔇' : '🔊';
+    muteButtonGame.innerText = isMuted ? '🔇' : '🔊';
+
+    volumeSlider.addEventListener('input', (e) => {
+        const vol = parseFloat(e.target.value);
+        if (!isMuted) {
+            if (currentTrack) currentTrack.volume = vol;
+        }
+        localStorage.setItem('volume', vol);
+        volumeSliderGame.value = vol;
+    });
+    
+    muteButton.addEventListener('click', () => {
+        isMuted = !isMuted;
+    
+        if (isMuted) {
+            if (currentTrack) currentTrack.volume = 0;
+            muteButton.innerText = '🔇';
+            muteButtonGame.innerText = '🔇';
+        } else {
+            const vol = parseFloat(volumeSlider.value);
+            if (currentTrack) currentTrack.volume = vol;
+            muteButton.innerText = '🔊';
+            muteButtonGame.innerText = '🔊';
+        }
+    
+        localStorage.setItem('muted', isMuted);
+    });
+    volumeSliderGame.addEventListener('input', (e) => {
+        const vol = parseFloat(e.target.value);
+        if (!isMuted) {
+            if (currentTrack) currentTrack.volume = vol;
+        }
+        localStorage.setItem('volume', vol);
+        volumeSlider.value = vol;
+    });
+    
+    muteButtonGame.addEventListener('click', () => {
+        isMuted = !isMuted;
+    
+        if (isMuted) {
+            if (currentTrack) currentTrack.volume = 0;
+            muteButton.innerText = '🔇';
+            muteButtonGame.innerText = '🔇';
+        } else {
+            const vol = parseFloat(volumeSliderGame.value);
+            if (currentTrack) currentTrack.volume = vol;
+            muteButton.innerText = '🔊';
+            muteButtonGame.innerText = '🔊';
+        }
+    
+        localStorage.setItem('muted', isMuted);
+    }); 
 });
 
 function toggleScreens(hide, show) {
@@ -202,6 +385,7 @@ async function initializeGame() {
     const usernameInput = document.getElementById('username-input');
     const username = usernameInput.value.trim() || `Player${Math.floor(Math.random() * 1000)}`;
     toggleScreens('nickname', 'game');
+    playTrack('fight'); // <-- переключаем музыку на бой
 
     try {
         gameId = await createGameSession(username);
@@ -459,19 +643,14 @@ function resetQuestionUI(message) {
 function endGame(res) {
     clearInterval(timerInterval);
 
-    // Если проиграли, показываем экран поражения
     if (!res.win) {
+        playTrack('defeat'); // <-- музыка проигрыша
         showDefeatScreen();
     } else {
-        // Воспроизводим анимацию проигрыша
-        const winGif = document.getElementById('win-animation');
-        winGif.style.display = 'block'; // Показываем гифку проигрыша
-
-        // Плавная смена экрана
+        playTrack('victory'); // <-- музыка победы
         setTimeout(() => {
-            toggleScreens('game', 'victory'); // Переход на экран поражения
-        }, 1000); // 1 секунда задержки для проигрыша
-
+            toggleScreens('game', 'victory');
+        }, 1000);
         document.getElementById('victory-message').textContent = 'Поздравляем, вы победили!';
         document.getElementById('player-statistics').textContent = typeof res.score === 'number' ? `Ваш счёт: ${res.score}` : '';
     }
