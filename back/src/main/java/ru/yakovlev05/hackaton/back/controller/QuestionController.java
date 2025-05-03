@@ -1,5 +1,6 @@
 package ru.yakovlev05.hackaton.back.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +11,7 @@ import ru.yakovlev05.hackaton.back.service.QuestionService;
 
 import java.util.List;
 
+@SecurityRequirement(name = "AdminAuth")
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/questions")

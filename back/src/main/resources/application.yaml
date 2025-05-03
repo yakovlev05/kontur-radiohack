@@ -22,3 +22,8 @@ game:
   time-to-answer-in-seconds: ${TIME_TO_ANSWER_IN_SECONDS:5}
   damage-right-answer: ${DAMAGE_RIGHT_ANSWER:30}
   damage-wrong-answer: ${DAMAGE_WRONG_ANSWER:50}
+
+security:
+  basic:
+    username: ${ADMIN_USERNAME:admin}
+    password: ${ADMIN_PASSWORD:admin}
