@@ -145,6 +145,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 
+// Быстрый выбор ответа по 1-4
+document.addEventListener('keydown', (event) => {
+    if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+
+    const key = event.key;
+
+    if (['1', '2', '3', '4'].includes(key)) {
+        const index = parseInt(key, 10) - 1;
+        const buttons = document.querySelectorAll('#answers-container button');
+        if (buttons[index]) {
+            buttons[index].click();
+        }
+    }
+});
+
+// Однократный клик при отпускании Enter или Space
+document.addEventListener('keyup', (event) => {
+    if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+
+    if (event.key === 'Enter' || event.key === ' ') {
+        const battlefield = document.getElementById('battlefield');
+        if (battlefield && battlefield.offsetParent !== null) {
+            sendClick();
+        }
+    }
+});
+
 // const tracks = {
 //     menu: new Audio('./res/music/Light Club - Blizzard.mp3'),
 //     fight: new Audio('./res/music/MEGALOVANIA.flac'),
@@ -206,6 +233,7 @@ let isMuted = savedMuted;
 //     currentTrack.volume = document.getElementById('volume-slider').value;
 //     currentTrack.play().catch(err => console.error('Ошибка воспроизведения:', err));
 // }
+
 function playTrack(type) {
     if (currentTrack) {
         currentTrack.pause();
@@ -417,7 +445,6 @@ function connectWebSocket(id) {
     socket.onclose = () => console.log('WebSocket closed');
 }
 
-
 async function loadLeaderboard(page = 0) {
     const body = document.getElementById('leaderboard-body');
     const indicator = document.getElementById('page-indicator');
@@ -519,7 +546,6 @@ function sendClick() {
         socket.send(JSON.stringify({type: 'CLICK'}));
     }
 }
-
 
 function handleServerMessage(msg) {
     if (typeof msg.myHp === 'number' && typeof msg.hrHp === 'number') {
