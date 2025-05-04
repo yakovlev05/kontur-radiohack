@@ -1,5 +1,6 @@
 package ru.yakovlev05.hackaton.back.service.impl;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ import ru.yakovlev05.hackaton.back.exception.NotFoundException;
 import ru.yakovlev05.hackaton.back.props.GameProps;
 import ru.yakovlev05.hackaton.back.service.GameService;
 import ru.yakovlev05.hackaton.back.service.ResultService;
+import ru.yakovlev05.hackaton.back.service.StartGameInfoService;
 import ru.yakovlev05.hackaton.back.ws.dto.out.ResultGameMessageOut;
 import ru.yakovlev05.hackaton.back.ws.session.GameStorage;
 
@@ -30,12 +32,13 @@ public class GameServiceImpl implements GameService {
     private final GameStorage gameStorage;
 
     private final ResultService resultService;
+    private final StartGameInfoService startGameInfoService;
 
     private final GameProps gameProps;
     private final HelperService helperService;
 
     @Override
-    public CreateGameResponseDto createGame(CreateGameRequestDto createGameRequestDto) {
+    public CreateGameResponseDto createGame(CreateGameRequestDto createGameRequestDto, HttpServletRequest request) {
         if (!validateUsername(createGameRequestDto.username())) {
             throw new ConflictException("Имя пользователя '%s' уже занято", createGameRequestDto.username());
         }
@@ -46,6 +49,8 @@ public class GameServiceImpl implements GameService {
         game.setUsername(createGameRequestDto.username());
 
         gameStorage.addGame(game.getId(), game);
+
+        startGameInfoService.saveInfo(game, request);
 
         return new CreateGameResponseDto(game.getId());
     }
@@ -99,6 +104,7 @@ public class GameServiceImpl implements GameService {
 
             resultService.save(result);
 
+            setStartGameInfoFieldIsWin(game.getUsername());
         }
 
         gameStorage.removeGame(game.getId());
@@ -139,7 +145,7 @@ public class GameServiceImpl implements GameService {
         return !isExistInSessions;
     }
 
-    public ResultGameMessageOut toDto(Game game, Long score, boolean isWin) {
+    private ResultGameMessageOut toDto(Game game, Long score, boolean isWin) {
         ResultGameMessageOut resultGameMessageOut = new ResultGameMessageOut();
         resultGameMessageOut.setWin(isWin);
         resultGameMessageOut.setScore(score);
@@ -148,5 +154,13 @@ public class GameServiceImpl implements GameService {
         resultGameMessageOut.setMyHp(game.getMyHp());
 
         return resultGameMessageOut;
+    }
+
+    private void setStartGameInfoFieldIsWin(String username) {
+        try {
+            startGameInfoService.setIsWinByUsername(username);
+        } catch (Exception e) {
+            log.error("Не смогли обновить старт игры (выигрыш)", e);
+        }
     }
 }

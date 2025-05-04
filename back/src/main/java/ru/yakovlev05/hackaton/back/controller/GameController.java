@@ -1,5 +1,6 @@
 package ru.yakovlev05.hackaton.back.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,7 +18,8 @@ public class GameController {
     private final GameService gameService;
 
     @PostMapping
-    public CreateGameResponseDto createGame(@RequestBody CreateGameRequestDto createGameRequestDto) {
-        return gameService.createGame(createGameRequestDto);
+    public CreateGameResponseDto createGame(@RequestBody CreateGameRequestDto createGameRequestDto,
+                                            HttpServletRequest request) {
+        return gameService.createGame(createGameRequestDto, request);
     }
 }
