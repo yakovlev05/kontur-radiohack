@@ -28,6 +28,7 @@ public class SecurityConfig {
                 .httpBasic(Customizer.withDefaults())
                 .authorizeHttpRequests(r -> r
                         .requestMatchers("/api/v1/questions/**").authenticated()
+                        .requestMatchers("/api/v1/statistics/starts-games").authenticated()
                         .anyRequest().permitAll()
                 )
                 .build();

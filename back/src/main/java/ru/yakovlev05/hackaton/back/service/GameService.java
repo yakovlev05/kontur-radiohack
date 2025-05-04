@@ -1,5 +1,6 @@
 package ru.yakovlev05.hackaton.back.service;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.socket.WebSocketSession;
 import ru.yakovlev05.hackaton.back.dto.session.CreateGameRequestDto;
 import ru.yakovlev05.hackaton.back.dto.session.CreateGameResponseDto;
@@ -9,7 +10,7 @@ import java.time.Instant;
 import java.util.Deque;
 
 public interface GameService {
-    CreateGameResponseDto createGame(CreateGameRequestDto createGameRequestDto);
+    CreateGameResponseDto createGame(CreateGameRequestDto createGameRequestDto, HttpServletRequest request);
 
     boolean existGameId(String gameId);
 
