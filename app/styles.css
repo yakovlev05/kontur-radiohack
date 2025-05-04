@@ -1,85 +1,388 @@
-body {
-    font-family: Arial, sans-serif;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    overflow-x: hidden;
-}
-
-#battlefield span { user-select: none; font-weight: bold; }
-
-#game-container {
-    border: 1px solid #ccc;
-    padding: 20px;
-    border-radius: 5px;
-    margin-top: 20px;
-    display: none;
-}
-
-#question-container, #result-container {
-    margin-bottom: 20px;
-}
-
-.answer-btn {
-    display: block;
-    width: 100%;
-    padding: 10px;
-    margin: 5px 0;
-    background-color: #f0f0f0;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.answer-btn:hover {
-    background-color: #e0e0e0;
-}
-
-#hp-bars {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
-}
-
-.hp-bar {
-    width: 48%;
-    height: 20px;
-    background-color: #eee;
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-.hp-fill {
+#fight {
+    background: url('res/new-scene.avif') no-repeat center center;
+    background-size: cover;
     height: 100%;
-    background-color: #4CAF50;
+    border-radius: 10px;
+  }
+
+  #character-animation {
     width: 100%;
-    transition: width 0.3s;
-}
+    max-width: 700px;
+    aspect-ratio: 1 / 1;
+    margin: 0 auto -109px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: max-width 0.2s ease, margin-bottom 0.2s ease;
+  }
 
-#hr-hp .hp-fill {
-    background-color: #f44336;
-}
+  .narrow-panel {
+    width: 600px;
+    transition: width 0.2s ease;
+  }
 
-#start-btn {
-    padding: 10px 20px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
+  @media (max-width: 1354px) {
+    #character-animation {
+      max-width: 600px;
+      margin-bottom: -83px;
+    }
+    .narrow-panel {
+      width: 600px;
+    }
+  }
+
+  @media (max-width: 1251px) {
+    #character-animation {
+      max-width: 550px;
+      margin-bottom: -72px;
+    }
+    .narrow-panel {
+      width: 600px;
+    }
+  }
+
+  @media (max-width: 1205px) {
+    #character-animation {
+        max-width: 535px;
+        margin-bottom: -69px;
+    }
+    .narrow-panel {
+        width: 555px;
+    }
+  }
+
+  @media (max-width: 1146px) {
+    #character-animation {
+        max-width: 535px;
+        margin-bottom: -69px;
+    }
+    .narrow-panel {
+        width: 500px;
+    }
+  }
+
+  @media (max-width: 1090px) {
+    #character-animation {
+        max-width: 535px;
+        margin-bottom: -69px;
+    }
+    .narrow-panel {
+        width: 450px;
+    }
+  }
+
+  @media (max-width: 1040px) {
+    #character-animation {
+        max-width: 535px;
+        margin-bottom: -69px;
+    }
+    .narrow-panel {
+        width: 350px;
+    }
+  }
+
+  @media (max-width: 938px) {
+    #character-animation {
+        max-width: 500px;
+        margin-bottom: -61px;
+    }
+    .narrow-panel {
+        width: 350px;
+    }
+  }
+
+  @media (max-width: 905px) {
+    #character-animation {
+        max-width: 450px;
+        margin-bottom: -50px;
+    }
+    .narrow-panel {
+        width: 350px;
+    }
+  }
+
+  @media (max-width: 853px) {
+    #character-animation {
+        max-width: 425px;
+        margin-bottom: -45px;
+    }
+    .narrow-panel {
+        width: 350px;
+    }
+  }
+
+  @media (max-width: 832px) {
+    #character-animation {
+        max-width: 400px;
+        margin-bottom: -38px;
+    }
+    .narrow-panel {
+        width: 350px;
+    }
+  }
+
+  @media (max-width: 804px) {
+    #character-animation {
+        max-width: 350px;
+        margin-bottom: -27px;
+    }
+    .narrow-panel {
+        width: 350px;
+    }
+  }
+
+  #battlefield {
+    width: 150px;
+    height: 150px;
     cursor: pointer;
-    font-size: 16px;
-}
-
-#start-btn:hover {
-    background-color: #45a049;
-}
-
-#timer {
-    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-weight: bold;
-    margin: 10px 0;
-}
+    font-size: 20px;
+    border: 2px solid #000;
+    border-radius: 10px;
+    margin-bottom: 20px;
+  }
+  .game-container {
+    height: calc(100vh - 32px);
+  }
+  .left-panel {
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 10px;
+    padding: 20px;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+  .wide-panel {
+    flex: 1;
+  }
+  #question-section {
+    text-align: center;
+    color: white;
+    margin-bottom: auto;
+  }
+  #question-text {
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: bold;
+  }
+  #answers-container {
+    min-height: 150px;
+    margin-bottom: 20px;
+  }
+  #next-button {
+    margin-top: auto;
+  }
+  #idle-gif {
+    transition: opacity 0.15s ease-in-out;
+  }
+  #battlefield {
+    user-select: none; /* 🔥 Запрещаем выделение текста */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+  }
+  #battlefield-img {
+    transition: transform 0.1s ease-in-out; /* Плавное сжатие */
+  }
+  .fade {
+    transition: opacity 0.5s ease-in-out;
+    opacity: 0;
+  }
+  .fade.show {
+    opacity: 1;
+  }
+  .attack-particle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: rgba(255, 0, 0, 0.7);
+    animation: particleEffect 0.3s ease-out;
+  }
+  @keyframes particleEffect {
+    0% { transform: scale(0); opacity: 1; }
+    100% { transform: scale(1.5); opacity: 0; }
+  }
+  @media (max-width: 768px) {
+    /* располагаем панели вертикально */
+    #game-screen .row        { flex-direction: column; }
+      
+    /* обе панели на всю ширину, отступ снизу у левой */
+    .narrow-panel,
+    .wide-panel              { width: 100% !important; }
+    .narrow-panel            { margin-bottom: 1rem; }
+      
+    /* центрируем сам бой по горизонтали и вертикали */
+    .wide-panel              { display: flex; justify-content: center; align-items: center; }
+      
+    /* сам «ринґ» */
+    #fight {
+      height: auto !important;      /* снимаем 100 % высоту */
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto;               /* горизонтальный центр */
+      background-size: contain;     /* весь фон помещается в блок */
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+  
+    /* гиф-анимация персонажа */
+    #character-animation {
+      width: 250px;
+      height: 250px;
+      margin-bottom: 20px;
+    }
+  
+    /* сама кнопка удара чуть меньше */
+    #battlefield-img { width: 180px; }
+  }
 
-#result-container {
-    display: none;
-}
+  #github-link {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 10;
+  }
+
+  .github-icon {
+    width: 40px;
+    height: 40px;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+  }
+
+  .github-icon:hover {
+    opacity: 1;
+  }
+
+  .info-button {
+    position: absolute;
+    top: 20px;
+    left: 75px;
+    z-index: 10;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .info-icon {
+    width: 40px;
+    height: 40px;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+  }
+  .info-icon:hover {
+    opacity: 1;
+  }
+
+  .popup-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.85);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .popup-content {
+    background: rgba(30, 30, 30, 0.9);
+    border-radius: 12px;
+    padding: 30px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 0 20px rgba(255,255,255,0.2);
+  }
+
+  .credits-scroll {
+    height: 120px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .credits-scroll p {
+    margin: 0;
+    padding: 5px 0;
+    white-space: normal;
+  }
+
+  .credits-scroll::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(to bottom, rgba(0,0,0,1), rgba(0,0,0,0));
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .credits-scroll::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(to top, rgba(0,0,0,1), rgba(0,0,0,0));
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .credits-scroll > div {
+    display: block;
+    animation: scroll-credits-up 12s linear infinite;
+    white-space: normal; /* ← разрешаем перенос строк */
+  }
+
+  
+  .credits-scroll a {
+    color: #00ccff;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .credits-scroll a:hover {
+    color: #66e0ff;
+    text-decoration: underline;
+  }
+
+  .popup-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 2rem;
+    cursor: pointer;
+    z-index: 1001;
+    line-height: 1;
+    padding: 0;
+    transition: color 0.2s;
+  }
+
+  .popup-close-btn:hover {
+    color: #ff6666;
+  }
+
+  #prev-page, #next-page {
+    padding: 8px 20px;
+  }
+
+  @keyframes scroll-credits-up {
+    0%   { transform: translateY(100%); }
+    100% { transform: translateY(-100%); }
+  }

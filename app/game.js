@@ -5,80 +5,158 @@ minecraftFont.load().then(loaded => {
     document.body.style.fontFamily = 'MinecraftSeven, sans-serif';
 }).catch(err => console.error('Не удалось загрузить шрифт MinecraftSeven:', err));
 
+function applyMobileLayout() {
+    if (window.innerWidth >= 768) return; // только для мобилок
+
+    const gameScreen = document.getElementById('game-screen');
+    if (gameScreen) gameScreen.classList.remove('py-4');
+
+    const gameScreenRow = document.querySelector('#game-screen .row');
+    const gameScreenContent = document.querySelector('#game-screen .h-100.g-3');
+
+    if (gameScreenRow) gameScreenRow.classList.remove('row');
+    if (gameScreenContent) gameScreenContent.classList.add('d-flex', 'flex-column');
+
+    const fight = document.getElementById('fight');
+    const hpBlock = fight?.querySelector('.w-75.text-center.text-white');
+
+    if (fight && hpBlock && gameScreenContent) {
+        hpBlock.classList.remove('w-75', 'mt-4');
+        fight.removeChild(hpBlock);
+
+        gameScreenContent.prepend(fight);
+        gameScreenContent.prepend(hpBlock);
+    }
+
+    // Переносим battlefield
+    const battlefield = document.getElementById('battlefield');
+    const narrowPanel = document.querySelector('.narrow-panel.left-panel');
+
+    if (battlefield && narrowPanel && narrowPanel.parentNode) {
+        narrowPanel.parentNode.insertBefore(battlefield, narrowPanel);
+    }
+
+    // Настройка размеров character-animation
+    const characterAnimation = document.getElementById('character-animation');
+    if (characterAnimation) {
+        characterAnimation.style.width = '250px';
+        characterAnimation.style.height = '250px';
+        characterAnimation.style.margin = '0 auto -15px';
+    }
+
+    // Убираем min-height у текста вопроса
+    const questionText = document.getElementById('question-text');
+    if (questionText) {
+        questionText.style.minHeight = '0';
+    }
+
+    // Убираем margin-bottom: auto у question-section
+    const questionSection = document.getElementById('question-section');
+    if (questionSection) {
+        questionSection.style.marginBottom = '0';
+    }
+
+    // answers-container скрыть
+    const answersContainer = document.getElementById('answers-container');
+    if (answersContainer) {
+        answersContainer.style.minHeight = '0';
+        answersContainer.style.display = 'none';
+    }
+
+    // battlefield поведение
+    const originalShowQuestion = window.showQuestion;
+    window.showQuestion = function(q) {
+        if (battlefield) battlefield.style.display = 'none';
+        if (answersContainer) answersContainer.style.display = 'block';
+        if (questionText) questionText.textContent = q.text;
+        originalShowQuestion(q);
+    };
+
+    const originalResetQuestionUI = window.resetQuestionUI;
+    window.resetQuestionUI = function(message) {
+        if (battlefield) battlefield.style.display = 'block';
+        if (answersContainer) answersContainer.style.display = 'none';
+        originalResetQuestionUI(message);
+    };
+}
+
+function revertMobileLayout() {
+    if (window.innerWidth < 768) return; // только для десктопа
+
+    const gameScreen = document.getElementById('game-screen');
+    if (gameScreen) gameScreen.classList.add('py-4');
+
+    const gameScreenContent = document.querySelector('#game-screen .h-100.g-3');
+    const gameScreenRow = gameScreenContent;
+
+    if (gameScreenRow) {
+        gameScreenRow.classList.remove('d-flex', 'flex-column');
+        gameScreenRow.classList.add('row');
+    }
+
+    const fight = document.getElementById('fight');
+    const widePanel = document.querySelector('.wide-panel');
+    const narrowPanel = document.querySelector('.narrow-panel.left-panel');
+    const battlefield = document.getElementById('battlefield');
+
+    // Восстановить .w-75 блок и вернуть его обратно внутрь #fight
+    const hpBlock = document.querySelector('#game-screen .text-center.text-white');
+    if (fight && hpBlock) {
+        // Убедимся, что он внутри gameScreenContent, но не внутри fight (т.е. был перемещён)
+        if (hpBlock.parentElement !== fight) {
+            hpBlock.classList.add('w-75', 'mt-4');
+            fight.appendChild(hpBlock);
+        }
+    }
+
+    // Вернуть fight обратно в widePanel
+    if (fight && widePanel && fight.parentElement !== widePanel) {
+        widePanel.appendChild(fight);
+    }
+
+    // Вернуть battlefield внутрь narrowPanel
+    if (battlefield && narrowPanel && battlefield.parentElement !== narrowPanel) {
+        narrowPanel.appendChild(battlefield);
+    }
+
+    // Восстановить размеры character-animation
+    const characterAnimation = document.getElementById('character-animation');
+    if (characterAnimation) {
+        characterAnimation.style.width = '';
+        characterAnimation.style.height = '';
+        characterAnimation.style.margin = '';
+    }
+
+    // Восстановить стили текста вопроса
+    const questionText = document.getElementById('question-text');
+    if (questionText) {
+        questionText.style.minHeight = '';
+    }
+
+    const questionSection = document.getElementById('question-section');
+    if (questionSection) {
+        questionSection.style.marginBottom = 'auto';
+    }
+
+    const answersContainer = document.getElementById('answers-container');
+    if (answersContainer) {
+        answersContainer.style.minHeight = '';
+        answersContainer.style.display = '';
+    }
+
+    // Восстановить оригинальные функции, если сохранены
+    if (window.originalShowQuestion) {
+        window.showQuestion = window.originalShowQuestion;
+    }
+
+    if (window.originalResetQuestionUI) {
+        window.resetQuestionUI = window.originalResetQuestionUI;
+    }
+}
+
 let currentPage = 0;
 document.addEventListener('DOMContentLoaded', () => {
-    if (window.innerWidth < 768) {
-        const gameScreen = document.getElementById('game-screen');
-        if (gameScreen) gameScreen.classList.remove('py-4');
-
-        const gameScreenRow = document.querySelector('#game-screen .row');
-        const gameScreenContent = document.querySelector('#game-screen .h-100.g-3');
-
-        if (gameScreenRow) gameScreenRow.classList.remove('row');
-        if (gameScreenContent) gameScreenContent.classList.add('d-flex', 'flex-column');
-
-        const fight = document.getElementById('fight');
-        const hpBlock = fight?.querySelector('.w-75.text-center.text-white');
-
-        if (fight && hpBlock && gameScreenContent) {
-            hpBlock.classList.remove('w-75', 'mt-4');
-            fight.removeChild(hpBlock);
-
-            gameScreenContent.prepend(fight);
-            gameScreenContent.prepend(hpBlock);
-        }
-
-        // Переносим battlefield
-        const battlefield = document.getElementById('battlefield');
-        const narrowPanel = document.querySelector('.narrow-panel.left-panel');
-
-        if (battlefield && narrowPanel && narrowPanel.parentNode) {
-            narrowPanel.parentNode.insertBefore(battlefield, narrowPanel);
-        }
-
-        // Настройка размеров character-animation
-        const characterAnimation = document.getElementById('character-animation');
-        if (characterAnimation) {
-            characterAnimation.style.width = '250px';
-            characterAnimation.style.height = '250px';
-            characterAnimation.style.margin = '0 auto -15px';
-        }
-
-        // Убираем min-height у текста вопроса
-        const questionText = document.getElementById('question-text');
-        if (questionText) {
-            questionText.style.minHeight = '0';
-        }
-
-        // Убираем margin-bottom: auto у question-section
-        const questionSection = document.getElementById('question-section');
-        if (questionSection) {
-            questionSection.style.marginBottom = '0';
-        }
-
-        // answers-container скрыть
-        const answersContainer = document.getElementById('answers-container');
-        if (answersContainer) {
-            answersContainer.style.minHeight = '0';
-            answersContainer.style.display = 'none';
-        }
-
-        // battlefield поведение
-        const originalShowQuestion = window.showQuestion;
-        window.showQuestion = function(q) {
-            if (battlefield) battlefield.style.display = 'none';
-            if (answersContainer) answersContainer.style.display = 'block';
-            if (questionText) questionText.textContent = q.text;
-            originalShowQuestion(q);
-        };
-
-        const originalResetQuestionUI = window.resetQuestionUI;
-        window.resetQuestionUI = function(message) {
-            if (battlefield) battlefield.style.display = 'block';
-            if (answersContainer) answersContainer.style.display = 'none';
-            originalResetQuestionUI(message);
-        };
-    }
+    applyMobileLayout();
 
     document.getElementById('show-leaderboard')
     .addEventListener('click', async () => {
@@ -145,12 +223,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 
-// Быстрый выбор ответа по 1-4
+let canClick = true;
+window.addEventListener('resize', () => {
+    applyMobileLayout();
+    revertMobileLayout();
+    if (canClick){
+        showButton();
+    }
+    else{
+        blockButton();
+    }
+});
+
 document.addEventListener('keydown', (event) => {
     if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
 
     const key = event.key;
 
+    // Быстрый выбор ответа по 1-4
     if (['1', '2', '3', '4'].includes(key)) {
         const index = parseInt(key, 10) - 1;
         const buttons = document.querySelectorAll('#answers-container button');
@@ -158,13 +248,105 @@ document.addEventListener('keydown', (event) => {
             buttons[index].click();
         }
     }
+
+    // Справка
+    if (event.key === 'F1' && !event.repeat) {
+        event.preventDefault(); // отключаем стандартную справку браузера
+        const popup = document.getElementById('team-popup');
+        popup.classList.toggle('d-none');
+    }
 });
 
-// Однократный клик при отпускании Enter или Space
-document.addEventListener('keyup', (event) => {
-    if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+document.addEventListener('keyup', async (event) => {
+    const popupVisible = !document.getElementById('team-popup').classList.contains('d-none');
+    if (popupVisible) return;
+    
+    if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+        // Если вводим ник, ENTER запускает игру
+        if (event.key === 'Enter' && document.activeElement.id === 'username-input') {
+            initializeGame();
+        }
+        return;
+    }
 
-    if (event.key === 'Enter' || event.key === ' ') {
+    const key = event.key;
+
+    const isVisible = id => {
+        const el = document.getElementById(id);
+        return el && !el.classList.contains('d-none');
+    };
+
+    // TAB открывает таблицу лидеров из меню
+    if (key === 'Tab') {
+        event.preventDefault(); // предотвратить фокусировку
+        if (isVisible('menu-screen')) {
+            currentPage = 0;
+            toggleScreens('menu', 'leaderboard');
+            await loadLeaderboard(currentPage);
+        }
+    }
+
+    // ← и → листают страницы таблицы лидеров
+    if (isVisible('leaderboard-screen')) {
+        if (key === 'ArrowLeft' && currentPage > 0) {
+            currentPage--;
+            await loadLeaderboard(currentPage);
+        } else if (key === 'ArrowRight') {
+            currentPage++;
+            await loadLeaderboard(currentPage);
+        } else if (key === ' ' || key === 'Enter') {
+            // Пробел или Enter — назад в меню
+            toggleScreens('leaderboard', 'menu');
+        }
+    }
+
+    // SPACE и ENTER в меню — перейти к вводу ника
+    if (isVisible('menu-screen') && (key === ' ' || key === 'Enter')) {
+        toggleScreens('menu', 'nickname');
+    }
+
+    // В экранах победы и поражения SPACE или ENTER — "Играть снова"
+    if ((isVisible('victory-screen') || isVisible('defeat-screen')) && (key === ' ' || key === 'Enter')) {
+        location.reload();
+    }
+
+    // 🔊 Громкость и mute/unmute в меню и в игре
+    if (isVisible('menu-screen') || isVisible('game-screen')) {
+        const volumeSlider = isVisible('menu-screen') ?
+            document.getElementById('volume-slider') :
+            document.getElementById('volume-slider-game');
+
+        const muteBtn = isVisible('menu-screen') ?
+            document.getElementById('mute-button') :
+            document.getElementById('mute-button-game');
+
+        let vol = parseFloat(volumeSlider.value);
+
+        if (key === 'ArrowRight') {
+            vol = Math.min(1, vol + 0.05);
+            volumeSlider.value = vol.toFixed(2);
+            if (!isMuted && currentTrack) currentTrack.volume = vol;
+            localStorage.setItem('volume', vol);
+        }
+
+        if (key === 'ArrowLeft') {
+            vol = Math.max(0, vol - 0.05);
+            volumeSlider.value = vol.toFixed(2);
+            if (!isMuted && currentTrack) currentTrack.volume = vol;
+            localStorage.setItem('volume', vol);
+        }
+
+        if (key === 'ArrowDown') {
+            isMuted = !isMuted;
+            if (currentTrack) currentTrack.volume = isMuted ? 0 : parseFloat(volumeSlider.value);
+            muteBtn.innerText = isMuted ? '🔇' : '🔊';
+            const altMuteBtn = (muteBtn.id === 'mute-button') ? document.getElementById('mute-button-game') : document.getElementById('mute-button');
+            if (altMuteBtn) altMuteBtn.innerText = muteBtn.innerText;
+            localStorage.setItem('muted', isMuted);
+        }
+    }
+
+    if (event.key === ' ') {
         const battlefield = document.getElementById('battlefield');
         if (battlefield && battlefield.offsetParent !== null) {
             sendClick();
@@ -405,6 +587,12 @@ function toggleScreens(hide, show) {
         hideScreen.classList.add('d-none'); // Скрываем экран
         showScreen.classList.remove('d-none'); // Показываем новый экран
         showScreen.classList.add('fade', 'show'); // Делаем плавное появление
+
+        // 🔽 Автофокус на поле ввода ника
+        if (show === 'nickname') {
+            const input = document.getElementById('username-input');
+            if (input) input.focus();
+        }
     }, 500); // Задержка, чтобы эффект исчезновения успел сработать
 }
 
@@ -479,7 +667,6 @@ async function loadLeaderboard(page = 0) {
 // Get both GIF elements
 const idleGif = document.getElementById('idle-gif');
 let animationTimeout = null;
-let canClick = true;
 
 function playAnimation(type) {
     const animations = {
@@ -583,15 +770,18 @@ function blockButton() {
             battlefieldImg.style.display = 'none';
         }
     }
+    else{
+        if (battlefieldImg) {
+            battlefieldImg.style.display = '';
+        }
+    }
 }
 
 function showButton() {
     const battlefieldImg = document.getElementById('battlefield-img');
     battlefieldImg.src = './res/Button_pressed.avif';
-    if (window.innerWidth < 768) {
-        if (battlefieldImg) {
-            battlefieldImg.style.display = '';
-        }
+    if (battlefieldImg) {
+        battlefieldImg.style.display = '';
     }
 }
 
@@ -664,7 +854,6 @@ function resetQuestionUI(message) {
     document.getElementById('question-text').textContent = message;
     document.getElementById('timer').textContent = '';
 }
-
 
 function endGame(res) {
     clearInterval(timerInterval);
