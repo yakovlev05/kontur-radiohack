@@ -45,7 +45,7 @@ public class StartGameInfoServiceImpl implements StartGameInfoService {
     public void saveInfo(Game game, HttpServletRequest request) {
         StartGameInfo startGameInfo = new StartGameInfo();
         startGameInfo.setUsername(game.getUsername());
-        startGameInfo.setIp(request.getRemoteAddr());
+        startGameInfo.setIp(request.getHeader("x-real-ip"));
         startGameInfo.setUserAgent(request.getHeader("User-Agent"));
 
         save(startGameInfo);
