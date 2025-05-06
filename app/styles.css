@@ -1,3 +1,7 @@
+html, body {
+  overflow: hidden;
+}
+
 #fight {
     background: url('res/new-scene.avif') no-repeat center center;
     background-size: cover;

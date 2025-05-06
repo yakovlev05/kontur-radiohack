@@ -214,12 +214,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let isFirstInteraction = false;
 
+    // const menu = document.getElementById('menu-screen');
+    // // play menu music only if menu-screen сейчас видим
+    // if (menu && menu.offsetParent !== null) {
+    //     try{
+    //         playTrack('menu');
+    //         isFirstInteraction = true;
+    //     }
+    //     catch {
+    //         isFirstInteraction = false;
+    //     }
+    // }
+
+    // let isFirstInteraction = false;
+
     document.addEventListener('click', () => {
         if (!isFirstInteraction) {
-            playTrack('menu');
+            const menu = document.getElementById('menu-screen');
+            // play menu music only if menu-screen сейчас видим
+            if (menu && menu.offsetParent !== null) {
+                playTrack('menu');
+            }
             isFirstInteraction = true;
         }
-    }, { once: true }); // <-- чтобы обработчик сработал только 1 раз
+    }, { once: true });
 
 });
 
@@ -435,6 +453,9 @@ function playTrack(type) {
     currentTrack.volume = savedMuted ? 0 : savedVolume;
 
     currentTrack.play().catch(err => console.error('Ошибка воспроизведения:', err));
+    if (type == 'menu' && currentTrack.volume != 0){
+        throw new Error('menu error music');
+    }
 }
 
 // Темная тема и кастомизация меню
@@ -592,22 +613,64 @@ function toggleScreens(hide, show) {
         if (show === 'nickname') {
             const input = document.getElementById('username-input');
             if (input) input.focus();
+            playTrack('menu');
         }
     }, 500); // Задержка, чтобы эффект исчезновения успел сработать
 }
 
 
+// async function initializeGame() {
+//     const usernameInput = document.getElementById('username-input');
+//     const username = usernameInput.value.trim() || `Player${Math.floor(Math.random() * 1000)}`;
+//     toggleScreens('nickname', 'game');
+//     playTrack('fight'); // <-- переключаем музыку на бой
+
+//     try {
+//         gameId = await createGameSession(username);
+//         connectWebSocket(gameId);
+//     } catch (e) {
+//         alert(`Ошибка старта: ${e.message}`);
+//     }
+// }
+
+function generateUniqueUsername() {
+    const timestamp = Date.now().toString(36); // текущая метка времени в 36-ричной системе
+    const randomStr = Math.random().toString(36).substring(2, 8); // случайная строка из 6 символов
+    return `Player_${timestamp}_${randomStr}`;
+}
+
 async function initializeGame() {
     const usernameInput = document.getElementById('username-input');
-    const username = usernameInput.value.trim() || `Player${Math.floor(Math.random() * 1000)}`;
-    toggleScreens('nickname', 'game');
-    playTrack('fight'); // <-- переключаем музыку на бой
 
-    try {
-        gameId = await createGameSession(username);
-        connectWebSocket(gameId);
-    } catch (e) {
-        alert(`Ошибка старта: ${e.message}`);
+    while (true) {
+        let username = usernameInput.value.trim();
+
+        // Если пользователь ничего не ввёл — генерируем случайный ник
+        if (!username) {
+            username = generateUniqueUsername();
+            usernameInput.value = username;
+        }
+
+        try {
+            gameId = await createGameSession(username);
+            toggleScreens('nickname', 'game');
+            playTrack('fight');
+            connectWebSocket(gameId);
+            break; // успех — выходим из цикла
+        } catch (e) {
+            if (e.message === 'Conflict') {
+                alert('Никнейм уже занят! Пожалуйста, введите другой.');
+                usernameInput.value = '';
+                usernameInput.focus();
+                usernameInput.select();
+
+                // Ждём, пока пользователь снова нажмёт кнопку "Играть"
+                return; // прерываем, чтобы пользователь сам снова инициировал запуск
+            } else {
+                alert(`Ошибка старта: ${e.message}`);
+                return;
+            }
+        }
     }
 }
 
@@ -619,7 +682,15 @@ async function createGameSession(username) {
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({username})
     });
-    if (!res.ok) throw new Error(res.statusText);
+
+    if (res.status === 409) {
+        throw new Error('Conflict'); // ник уже занят
+    }
+
+    if (!res.ok) {
+        throw new Error(res.statusText);
+    }
+
     const data = await res.json();
     return data.gameId;
 }
