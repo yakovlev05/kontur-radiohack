@@ -214,19 +214,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let isFirstInteraction = false;
 
-    // const menu = document.getElementById('menu-screen');
-    // // play menu music only if menu-screen сейчас видим
-    // if (menu && menu.offsetParent !== null) {
-    //     try{
-    //         playTrack('menu');
-    //         isFirstInteraction = true;
-    //     }
-    //     catch {
-    //         isFirstInteraction = false;
-    //     }
-    // }
-
-    // let isFirstInteraction = false;
+    const menu = document.getElementById('menu-screen');
+    // play menu music only if menu-screen сейчас видим
+    if (menu && menu.offsetParent !== null) {
+        try{
+            playTrack('menu');
+            isFirstInteraction = true;
+        }
+        catch {
+            isFirstInteraction = false;
+        }
+    }
 
     document.addEventListener('click', () => {
         if (!isFirstInteraction) {
