@@ -217,13 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const menu = document.getElementById('menu-screen');
     // play menu music only if menu-screen сейчас видим
     if (menu && menu.offsetParent !== null) {
-        try{
-            playTrack('menu');
-            isFirstInteraction = true;
-        }
-        catch {
-            isFirstInteraction = false;
-        }
+        playTrack('menu');
     }
 
     document.addEventListener('click', () => {
@@ -431,8 +425,12 @@ let isMuted = savedMuted;
 //     currentTrack.volume = document.getElementById('volume-slider').value;
 //     currentTrack.play().catch(err => console.error('Ошибка воспроизведения:', err));
 // }
+let currentTrackType = null;
 
 function playTrack(type) {
+    // Если уже играет нужный тип трека — не перезапускаем
+    if (currentTrack && !currentTrack.paused && currentTrackType === type) return;
+
     if (currentTrack) {
         currentTrack.pause();
         currentTrack.currentTime = 0;
@@ -444,16 +442,27 @@ function playTrack(type) {
     const filename = list[Math.floor(Math.random() * list.length)];
     currentTrack = new Audio(`./res/music/${filename}`);
     currentTrack.loop = true;
+    currentTrackType = type; // сохраняем тип отдельно
 
     const savedVolume = parseFloat(localStorage.getItem('volume')) || 0.25;
     const savedMuted = localStorage.getItem('muted') === 'true';
-
     currentTrack.volume = savedMuted ? 0 : savedVolume;
 
-    currentTrack.play().catch(err => console.error('Ошибка воспроизведения:', err));
-    if (type == 'menu' && currentTrack.volume != 0){
-        throw new Error('menu error music');
-    }
+    currentTrack.play()
+    .then(() => {
+        if (type === 'menu') {
+            isFirstInteraction = true;
+        }
+    })
+    .catch(err => {
+        if (type === 'menu') {
+            console.warn('Автовоспроизведение не разрешено, ждём клик:', err);
+            isFirstInteraction = false;
+        } else {
+            currentTrackType = null;
+            console.error('Ошибка воспроизведения:', err);
+        }
+    });
 }
 
 // Темная тема и кастомизация меню
