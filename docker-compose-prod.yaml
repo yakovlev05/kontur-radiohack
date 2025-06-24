@@ -1,0 +1,74 @@
+name: radiohack
+
+volumes:
+  postgres:
+
+networks:
+  common:
+  traefik:
+    external: true
+
+services:
+  postgres:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-radiohack}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}
+      - POSTGRES_USER=${POSTGRES_USER:-user}
+    # ports:
+    #   - "5432:5432"
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    networks:
+      - common
+
+  api:
+    image: ghcr.io/yakovlev05/kontur-radiohack-api:main
+    restart: unless-stopped
+    env_file: # Настройки игры
+      - stack.env
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=${POSTGRES_DB:-radiohack}
+      - POSTGRES_USER=${POSTGRES_USER:-user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}
+      - ADMIN_USERNAME=${ADMIN_USERNAME}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+    # ports:
+    #   - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - common
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik"
+      - "traefik.http.routers.kontur-radiohack.rule=Host(`kontur.yakovlev05.ru`) && (PathPrefix(`/api`) || PathPrefix(`/ws`) || PathRegexp(`^/(swagger-ui|swagger-resources|v3/api-docs)`))"
+      - "traefik.http.routers.kontur-radiohack.entrypoints=websecure"
+      - "traefik.http.routers.kontur-radiohack.tls.certresolver=cloudflare"
+      - "traefik.http.routers.kontur-radiohack.tls=true"
+      - "traefik.http.services.kontur-radiohack.loadbalancer.server.port=8080"
+      - "traefik.http.routers.kontur-radiohack.tls.domains[0].main=yakovlev05.ru"
+      - "traefik.http.routers.kontur-radiohack.tls.domains[0].sans=*.yakovlev05.ru"
+
+  app:
+    image: ghcr.io/yakovlev05/kontur-radiohack-app:main
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    networks:
+      - common
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik"
+      - "traefik.http.routers.kontur-radiohack-app.rule=Host(`kontur.yakovlev05.ru`)"
+      - "traefik.http.routers.kontur-radiohack-app.entrypoints=websecure"
+      - "traefik.http.routers.kontur-radiohack-app.tls.certresolver=cloudflare"
+      - "traefik.http.routers.kontur-radiohack-app.tls=true"
+      - "traefik.http.services.kontur-radiohack-app.loadbalancer.server.port=80"
+      - "traefik.http.routers.kontur-radiohack-app.tls.domains[0].main=yakovlev05.ru"
+      - "traefik.http.routers.kontur-radiohack-app.tls.domains[0].sans=*.yakovlev05.ru"
